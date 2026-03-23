@@ -1,0 +1,206 @@
+/* ========================================
+   ALL PATIENTS PAGE STYLES
+   ======================================== */
+
+/* Stats Cards */
+.stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card h4 {
+    font-size: 1.75rem;
+}
+
+.icon-bg {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Avatar Circles */
+.avatar-circle {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.avatar-circle-large {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 36px;
+    flex-shrink: 0;
+}
+
+/* Patient Card */
+.patient-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.patient-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.patient-card .card-body {
+    padding: 1.5rem;
+}
+
+.patient-card h5 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Table Styles */
+.table > :not(caption) > * > * {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+}
+
+/* Action Buttons */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+}
+
+/* Search and Filter */
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.input-group-text {
+    background-color: white;
+}
+
+/* View Mode Toggle */
+.btn-group .btn {
+    padding: 0.5rem 1rem;
+}
+
+.btn-group .btn i {
+    font-size: 1.1rem;
+}
+
+/* Gender Icons */
+.bi-person {
+    font-size: 24px;
+}
+
+.bi-person-dress {
+    font-size: 24px;
+}
+
+/* Blood Group Badge */
+.badge.text-danger {
+    font-weight: 600;
+}
+
+/* Card View Grid */
+.row.g-4 {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .stat-card h4 {
+        font-size: 1.5rem;
+    }
+    
+    .icon-bg {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .icon-bg i {
+        font-size: 20px !important;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    .avatar-circle-large {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .patient-card .card-body {
+        padding: 1rem;
+    }
+    
+    .table > :not(caption) > * > * {
+        padding: 0.75rem 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn-group {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+    }
+    
+    .stat-card h4 {
+        font-size: 1.25rem;
+    }
+}

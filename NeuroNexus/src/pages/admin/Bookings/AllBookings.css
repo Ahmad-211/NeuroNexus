@@ -1,0 +1,135 @@
+/* ========================================
+   ALL BOOKINGS PAGE STYLES
+   ======================================== */
+
+/* Stats Cards */
+.stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.stat-card h4 {
+    font-size: 1.75rem;
+}
+
+.icon-bg {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Table Styles */
+.table > :not(caption) > * > * {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    min-width: 80px;
+    height: 32px;
+    border-radius: 6px;
+}
+
+/* Action Buttons */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+}
+
+/* Code Styles */
+code {
+    background-color: transparent;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+/* Search and Filter */
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.input-group-text {
+    background-color: white;
+}
+
+/* Card Hover */
+.card {
+    transition: all 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .stat-card h4 {
+        font-size: 1.5rem;
+    }
+    
+    .icon-bg {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .icon-bg i {
+        font-size: 20px !important;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .table > :not(caption) > * > * {
+        padding: 0.75rem 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-card h4 {
+        font-size: 1.25rem;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.5rem;
+    }
+}

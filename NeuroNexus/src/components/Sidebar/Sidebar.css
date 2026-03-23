@@ -1,0 +1,152 @@
+/* ========================================
+   SIDEBAR
+   ======================================== */
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1a1a1a 0%, #222 100%);
+    transition: all 0.3s ease;
+    border-right: 1px solid #333;
+}
+
+.sidebar-header {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+    position: relative;
+}
+
+.sidebar-header h5 {
+    font-size: 16px;
+    color: white;
+    margin: 0;
+}
+
+.sidebar-header small {
+    font-size: 11px;
+    color: #999;
+    display: block;
+    margin-top: 2px;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(180deg, #1a1a1a 0%, #222 100%);
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-menu {
+    margin-top: 20px;
+}
+
+.nav-link {
+    color: #999 !important;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background-color: #333;
+    color: white !important;
+    transform: translateX(4px);
+}
+
+.nav-link.active {
+    background-color: #0d6efd;
+    color: white !important;
+}
+
+.nav-link i {
+    font-size: 16px;
+    min-width: 20px;
+}
+
+.nav-link .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    min-width: 24px;
+    height: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom badge colors with consistent white text */
+.nav-link .badge-labs {
+    background-color: #F7C948 !important;
+    color: #ffffff !important;
+}
+
+.nav-link .badge-doctors {
+    background-color: #F39C12 !important;
+    color: #ffffff !important;
+}
+
+.nav-link .badge-complaints {
+    background-color: #E74C3C !important;
+    color: #ffffff !important;
+}
+
+.nav-link .badge-notifications {
+    background-color: #3498DB !important;
+    color: #ffffff !important;
+}
+
+.btn-close-white {
+    display: none;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+/* Sidebar Mobile Toggle */
+@media (max-width: 991px) {
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        height: 100vh;
+        z-index: 1050;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .btn-close-white {
+        display: block;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: none;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+}

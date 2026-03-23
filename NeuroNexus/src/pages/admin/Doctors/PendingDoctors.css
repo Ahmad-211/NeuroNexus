@@ -1,0 +1,84 @@
+/* ========================================
+   PENDING DOCTORS PAGE STYLES
+   ======================================== */
+
+/* Avatar Circle */
+.avatar-circle {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+/* Table Styles */
+.table > :not(caption) > * > * {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Action Buttons */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+}
+
+/* Card Styles */
+.card {
+    transition: all 0.3s ease;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+}
+
+/* Search Input */
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Input Group */
+.input-group-text {
+    background-color: white;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .table > :not(caption) > * > * {
+        padding: 0.75rem 1rem;
+    }
+}

@@ -1,0 +1,42 @@
+/* Admin Layout Styles */
+.admin-layout {
+  min-height: 100vh;
+  background-color: var(--grey-light);
+}
+
+.admin-main {
+  margin-top: 70px;
+  margin-left: 280px;
+  min-height: calc(100vh - 70px);
+  transition: margin-left 0.3s ease;
+}
+
+.admin-content {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .admin-main {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-main {
+    margin-top: 60px;
+    min-height: calc(100vh - 60px);
+  }
+
+  .admin-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 1rem;
+  }
+}

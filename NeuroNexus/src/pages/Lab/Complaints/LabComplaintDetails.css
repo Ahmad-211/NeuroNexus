@@ -1,0 +1,328 @@
+/* ========================================
+   LAB COMPLAINT DETAILS PAGE STYLES
+   ======================================== */
+
+/* Root Layout Fix - Full Width */
+.d-flex.vh-100 {
+    display: flex;
+    min-height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Content Wrapper - Full Width Layout */
+.flex-grow-1.d-flex.flex-column {
+    margin-left: 260px;
+    width: calc(100vw - 260px);
+    max-width: calc(100vw - 260px);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    flex: 1;
+}
+
+/* Scrollable Content Area */
+.flex-grow-1.overflow-y-auto {
+    margin-top: 70px;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #f5f7fa;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Card Styles */
+.card {
+    border-radius: 12px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-title {
+    font-size: 1.125rem;
+    color: #1f2937;
+}
+
+/* Info Items */
+.info-item label {
+    display: block;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.375rem;
+}
+
+.info-item p {
+    font-size: 0.9375rem;
+    color: #1f2937;
+}
+
+/* Complaint Text Box */
+.complaint-text-box {
+    padding: 1.25rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: #374151;
+}
+
+/* Attachments */
+.attachment-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.attachment-card:hover {
+    border-color: #1A73E8;
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.15);
+}
+
+.attachment-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.attachment-info {
+    padding: 0.75rem;
+    background-color: #f9fafb;
+}
+
+.attachment-info small {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+/* Button Styles */
+.btn-link {
+    color: #1A73E8;
+    font-weight: 500;
+    padding: 0;
+}
+
+.btn-link:hover {
+    color: #1557B0;
+}
+
+.btn-outline-primary {
+    border: 2px solid #1A73E8;
+    color: #1A73E8;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #1A73E8;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
+    border: none;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-success:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-success:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Form Controls */
+.form-select {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+}
+
+.form-select:focus {
+    border-color: #1A73E8;
+    box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.15);
+}
+
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+}
+
+.form-control:focus {
+    border-color: #1A73E8;
+    box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.15);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+/* Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .flex-grow-1.d-flex.flex-column {
+        margin-left: 0;
+        width: 100vw;
+        max-width: 100vw;
+    }
+
+    .col-lg-8,
+    .col-lg-4 {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .flex-grow-1.overflow-y-auto {
+        margin-top: 60px;
+        height: calc(100vh - 60px);
+    }
+
+    h2.fw-bold {
+        font-size: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .d-flex.justify-content-between {
+        flex-direction: column;
+    }
+
+    .badge.fs-6 {
+        font-size: 0.875rem !important;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 1rem !important;
+    }
+
+    h2.fw-bold {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 1.25rem !important;
+    }
+
+    .complaint-text-box {
+        padding: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .attachment-image {
+        height: 120px;
+    }
+
+    .btn-primary,
+    .btn-success,
+    .btn-outline-primary {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .info-item label {
+        font-size: 0.75rem;
+    }
+
+    .info-item p {
+        font-size: 0.875rem;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 0.875rem;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+    }
+}
+
+/* Custom Scrollbar */
+.flex-grow-1.overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+.flex-grow-1.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.flex-grow-1.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 3px;
+}
+
+.flex-grow-1.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

@@ -1,0 +1,146 @@
+/* ========================================
+   LAB SIDEBAR
+   ======================================== */
+
+.lab-sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow-y: auto;
+    background: linear-gradient(180deg, #1a1a1a 0%, #222 100%);
+    transition: all 0.3s ease;
+    border-right: 1px solid #333;
+}
+
+.lab-sidebar .sidebar-header {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+    position: relative;
+}
+
+.lab-sidebar .sidebar-header h5 {
+    font-size: 16px;
+    color: white;
+    margin: 0;
+}
+
+.lab-sidebar .sidebar-header small {
+    font-size: 11px;
+    color: #999;
+    display: block;
+    margin-top: 2px;
+}
+
+.lab-sidebar .logo-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.lab-sidebar .sidebar-menu {
+    margin-top: 20px;
+}
+
+.lab-sidebar .nav-link {
+    color: #999 !important;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.lab-sidebar .nav-link:hover {
+    background-color: #333;
+    color: white !important;
+    transform: translateX(4px);
+}
+
+.lab-sidebar .nav-link.active {
+    background-color: #0d6efd;
+    color: white !important;
+}
+
+.lab-sidebar .nav-link i {
+    font-size: 16px;
+    min-width: 20px;
+}
+
+.lab-sidebar .nav-link .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    min-width: 24px;
+    height: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom badge colors with consistent white text */
+.lab-sidebar .nav-link .badge-bookings {
+    background-color: #6366f1 !important;
+    color: #ffffff !important;
+}
+
+.lab-sidebar .nav-link .badge-complaints {
+    background-color: #E74C3C !important;
+    color: #ffffff !important;
+}
+
+.lab-sidebar .nav-link .badge-notifications {
+    background-color: #3498DB !important;
+    color: #ffffff !important;
+}
+
+.lab-sidebar .btn-close-white {
+    display: none;
+}
+
+.lab-sidebar + .sidebar-overlay {
+    display: none;
+}
+
+/* Sidebar Mobile Toggle */
+@media (max-width: 991px) {
+    .lab-sidebar {
+        position: fixed;
+        left: -260px;
+        height: 100vh;
+        z-index: 1050;
+    }
+
+    .lab-sidebar.show {
+        left: 0;
+    }
+
+    .lab-sidebar .btn-close-white {
+        display: block;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040;
+        display: none;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+}

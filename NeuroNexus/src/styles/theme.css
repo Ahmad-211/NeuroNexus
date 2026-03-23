@@ -1,0 +1,211 @@
+/* NeuroNexus Medical Theme - Professional Admin Portal */
+
+:root {
+  /* Primary Colors */
+  --primary-blue: #1A73E8;
+  --secondary-blue: #0F5CC0;
+  --white: #FFFFFF;
+  --grey-light: #F5F7FA;
+  --grey-dark: #4A4A4A;
+  
+  /* Additional UI Colors */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --info: #3B82F6;
+  
+  /* Text Colors */
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --text-light: #9CA3AF;
+  
+  /* Border & Shadows */
+  --border-color: #E5E7EB;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background-color: var(--grey-light);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility Classes */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-1 { margin-bottom: var(--spacing-md); }
+.mb-2 { margin-bottom: var(--spacing-lg); }
+.mb-3 { margin-bottom: var(--spacing-xl); }
+
+.mt-1 { margin-top: var(--spacing-md); }
+.mt-2 { margin-top: var(--spacing-lg); }
+.mt-3 { margin-top: var(--spacing-xl); }
+
+/* Button Base Styles */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  outline: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--primary-blue);
+  color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--secondary-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  color: var(--text-primary);
+  background-color: var(--white);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--text-light);
+}
+
+.form-input.error {
+  border-color: var(--error);
+}
+
+.form-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-error {
+  display: block;
+  margin-top: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--error);
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-2xl);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-xl);
+  }
+  
+  .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --spacing-2xl: 2rem;
+  }
+  
+  .card {
+    padding: var(--spacing-lg);
+  }
+}

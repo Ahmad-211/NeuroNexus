@@ -1,0 +1,211 @@
+/* ========================================
+   BOOKING DETAILS PAGE STYLES
+   ======================================== */
+
+/* Icon Circle */
+.icon-circle-large {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 40px;
+    flex-shrink: 0;
+}
+
+/* Card Styles */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* Labels */
+label {
+    font-weight: 500;
+}
+
+/* Code Styles */
+code {
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #d63384;
+}
+
+/* Timeline Styles */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background: linear-gradient(to bottom, #0d6efd, #e9ecef);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: -2rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.timeline-content {
+    padding-left: 0.5rem;
+}
+
+/* Payment Summary */
+.border-bottom {
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.alert-info {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Section Headers */
+h5 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Row Spacing */
+.row.g-3 > * {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .icon-circle-large {
+        width: 64px;
+        height: 64px;
+        font-size: 32px;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    h3 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .icon-circle-large {
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+    }
+    
+    h5 {
+        font-size: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-icon {
+        left: -1.5rem;
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .timeline::before {
+        left: 0.5rem;
+    }
+    
+    .timeline-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 11px;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.5rem;
+    }
+}
