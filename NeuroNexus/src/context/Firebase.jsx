@@ -34,14 +34,14 @@ import {
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAeVqHKRlu0NCFwkESSfuOuU4YlqAMerTU",
-  authDomain: "colorcalling-2a53d.firebaseapp.com",
-  databaseURL: "https://colorcalling-2a53d-default-rtdb.firebaseio.com",
-  projectId: "colorcalling-2a53d",
-  storageBucket: "colorcalling-2a53d.appspot.com",
-  messagingSenderId: "795944039862",
-  appId: "1:795944039862:web:96f1b6e113b101bf8cbd17",
-  measurementId: "G-Q6LY0F7CT2"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
