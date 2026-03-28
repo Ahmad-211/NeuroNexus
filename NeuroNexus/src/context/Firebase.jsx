@@ -880,8 +880,110 @@ export const FirebaseProvider = ({ children }) => {
   };
 
   // ============================================
+  // PATIENT FUNCTIONS
+  // ============================================
+
+  // Get All Patients - fetch from users (role=patient), merge with patients node, count bookings
+  const getAllPatients = async () => {
+    try {
+      // Fetch all users
+      const usersRef = ref(database, 'users');
+      const usersSnapshot = await get(usersRef);
+
+      if (!usersSnapshot.exists()) {
+        return { success: true, patients: [] };
+      }
+
+      const usersData = usersSnapshot.val();
+
+      // Filter only patient users
+      const patientUsers = Object.entries(usersData)
+        .filter(([_, user]) => user.role === 'patient')
+        .map(([uid, user]) => ({ uid, ...user }));
+
+      if (patientUsers.length === 0) {
+        return { success: true, patients: [] };
+      }
+
+      // Fetch patients profile data
+      const patientsRef = ref(database, 'patients');
+      const patientsSnapshot = await get(patientsRef);
+      const patientsData = patientsSnapshot.exists() ? patientsSnapshot.val() : {};
+
+      // Fetch all appointments for booking count
+      const appointmentsRef = ref(database, 'appointments');
+      const appointmentsSnapshot = await get(appointmentsRef);
+      const appointmentsData = appointmentsSnapshot.exists() ? appointmentsSnapshot.val() : {};
+
+      // Count bookings per patient
+      const bookingCounts = {};
+      Object.values(appointmentsData).forEach(appointment => {
+        const holderId = appointment.accountHolderId;
+        if (holderId) {
+          bookingCounts[holderId] = (bookingCounts[holderId] || 0) + 1;
+        }
+      });
+
+      // Merge data
+      const mergedPatients = patientUsers.map(user => {
+        const profile = patientsData[user.uid] || {};
+        return {
+          uid: user.uid,
+          name: profile.name || profile.fullName || profile.fullname || user.email?.split('@')[0] || 'N/A',
+          email: profile.email || user.email || 'N/A',
+          phone: profile.phone || profile.phoneNumber || 'N/A',
+          status: user.status || 'active',
+          totalBookings: bookingCounts[user.uid] || 0,
+          createdAt: user.createdAt || 0
+        };
+      });
+
+      return { success: true, patients: mergedPatients };
+    } catch (error) {
+      console.error("Get all patients error:", error);
+      return { success: false, error: error.message, patients: [] };
+    }
+  };
+
+  // Toggle Patient Status (active/blocked)
+  const togglePatientStatus = async (patientUid, newStatus) => {
+    try {
+      const userRef = ref(database, `users/${patientUid}`);
+      await update(userRef, {
+        status: newStatus
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Toggle patient status error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // ============================================
   // BOOKING / APPOINTMENT FUNCTIONS
   // ============================================
+
+  // Get All Bookings - fetch all appointments for admin
+  const getAllBookings = async () => {
+    try {
+      const appointmentsRef = ref(database, 'appointments');
+      const snapshot = await get(appointmentsRef);
+
+      if (!snapshot.exists()) {
+        return { success: true, bookings: [] };
+      }
+
+      const allAppointments = snapshot.val();
+      const bookingsArray = Object.entries(allAppointments)
+        .map(([key, booking]) => ({ ...booking, id: key }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      return { success: true, bookings: bookingsArray };
+    } catch (error) {
+      console.error("Get all bookings error:", error);
+      return { success: false, error: error.message, bookings: [] };
+    }
+  };
 
   // Get Lab Bookings - fetch all appointments where labId matches
   const getLabBookings = async (labId) => {
@@ -1134,9 +1236,12 @@ export const FirebaseProvider = ({ children }) => {
     markAllNotificationsAsRead,
     clearAllNotifications,
     deleteNotification,
+    getAllBookings,
     getLabBookings,
     getBookingById,
     updateBookingStatus,
+    getAllPatients,
+    togglePatientStatus,
     logout,
     auth,
     database,

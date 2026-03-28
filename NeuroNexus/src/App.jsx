@@ -20,9 +20,7 @@ import PendingDoctors from './pages/admin/Doctors/PendingDoctors'
 import ApprovedDoctors from './pages/admin/Doctors/ApprovedDoctors'
 import DoctorDetails from './pages/admin/Doctors/DoctorDetails'
 import AllPatients from './pages/admin/Patients/AllPatients'
-import PatientDetails from './pages/admin/Patients/PatientDetails'
 import AllBookings from './pages/admin/Bookings/AllBookings'
-import BookingDetails from './pages/admin/Bookings/BookingDetails'
 import AllPayments from './pages/admin/Payments/AllPayments'
 import PaymentDetails from './pages/admin/Payments/PaymentDetails'
 import ComplaintsList from './pages/admin/Complains/ComplaintsList'
@@ -69,9 +67,7 @@ function App() {
         <Route path="/doctors/:id" element={<AdminProtectedRoute><DoctorDetails /></AdminProtectedRoute>} />
         <Route path="/doctors" element={<Navigate to="/doctors/pending" replace />} />
         <Route path="/patients" element={<AdminProtectedRoute><AllPatients /></AdminProtectedRoute>} />
-        <Route path="/patients/:id" element={<AdminProtectedRoute><PatientDetails /></AdminProtectedRoute>} />
         <Route path="/bookings" element={<AdminProtectedRoute><AllBookings /></AdminProtectedRoute>} />
-        <Route path="/bookings/:id" element={<AdminProtectedRoute><BookingDetails /></AdminProtectedRoute>} />
         <Route path="/payments" element={<AdminProtectedRoute><AllPayments /></AdminProtectedRoute>} />
         <Route path="/payments/:id" element={<AdminProtectedRoute><PaymentDetails /></AdminProtectedRoute>} />
         <Route path="/complaints" element={<AdminProtectedRoute><ComplaintsList /></AdminProtectedRoute>} />

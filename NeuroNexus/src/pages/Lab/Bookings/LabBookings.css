@@ -51,43 +51,36 @@
     }
 }
 
-/* Booking Tabs */
-.booking-tabs {
-    display: flex;
-    gap: 0.5rem;
+/* Stat Cards */
+.stat-card {
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.booking-tabs .nav-link {
-    border-radius: 8px;
-    padding: 0.75rem 1.25rem;
-    font-weight: 500;
-    color: #6b7280;
-    background-color: transparent;
-    border: 2px solid transparent;
-    transition: all 0.2s ease;
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.icon-bg {
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
-.booking-tabs .nav-link:hover {
-    background-color: #f3f4f6;
-    color: #1f2937;
+/* Form Select */
+.form-select {
+    border: 2px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9375rem;
 }
 
-.booking-tabs .nav-link.active {
-    background: linear-gradient(135deg, #1A73E8 0%, #1557B0 100%);
-    color: white;
-    border-color: transparent;
-}
-
-.booking-tabs .nav-link .badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-}
-
-.booking-tabs .nav-link.active .badge {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-    color: white !important;
+.form-select:focus {
+    border-color: #1A73E8;
+    box-shadow: none;
 }
 
 /* Search Input */
@@ -206,16 +199,6 @@
 
     h2.fw-bold {
         font-size: 1.5rem;
-    }
-
-    .booking-tabs {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .booking-tabs .nav-link {
-        width: 100%;
-        justify-content: center;
     }
 
     .table thead th {
