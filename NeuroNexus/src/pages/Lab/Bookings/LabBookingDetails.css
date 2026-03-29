@@ -57,6 +57,15 @@
 }
 
 /* Info Items */
+.info-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0;
+    border-bottom: none;
+}
+
 .info-item label {
     display: block;
     font-size: 0.8125rem;
@@ -68,6 +77,33 @@
 .info-item p {
     font-size: 0.9375rem;
     color: #1f2937;
+}
+
+/* Detail Field Padding */
+.detail-field {
+    padding-right: 1.5rem;
+}
+
+/* Horizontal Booking Info Bar */
+.booking-info-bar {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    gap: 0;
+}
+
+.booking-info-bar-item {
+    flex: 1;
+    text-align: center;
+}
+
+.booking-info-bar-divider {
+    width: 1px;
+    height: 40px;
+    background-color: #dee2e6;
+    margin: 0 1rem;
 }
 
 /* Payment Status Badge */
