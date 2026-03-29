@@ -3,26 +3,20 @@
 
 /* Approved Labs specific styles */
 
-/* Override table column widths for approved labs (8 columns) */
-.data-table {
-  min-width: 1400px;
+/* Lab Avatar Circle */
+.lab-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(13, 202, 240, 0.1);
+  color: #0dcaf0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
-.data-table th:nth-child(1) { width: 250px; } /* Lab Name */
-.data-table th:nth-child(2) { width: 180px; } /* License Number */
-.data-table th:nth-child(3) { width: 240px; } /* Contact */
-.data-table th:nth-child(4) { width: 160px; } /* Location */
-.data-table th:nth-child(5) { width: 120px; } /* Status */
-.data-table th:nth-child(6) { width: 120px; } /* Bookings */
-.data-table th:nth-child(7) { width: 120px; } /* Rating */
-.data-table th:nth-child(8) { width: 130px; } /* Actions */
-
-/* Override minimum table width for 8 columns */
-@media (max-width: 768px) {
-  .data-table {
-    min-width: 1400px;
-  }
-}
 
 /* Status Badge Variations */
 .stat-badge.total {

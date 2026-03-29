@@ -279,89 +279,93 @@ function ApprovedLabs() {
               </div>
             ) : (
               <>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Lab Name</th>
-                      <th>License Number</th>
-                      <th>Contact</th>
-                      <th>Location</th>
-                      <th>Status</th>
-                      <th>Bookings</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedLabs.map((lab) => (
-                      <tr key={lab.id}>
-                        <td>
-                          <div className="cell-with-subtitle">
-                            <span className="cell-main">{lab.name}</span>
-                            <span className="cell-sub">{lab.id}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className="badge badge-neutral">{lab.licenseNumber}</span>
-                        </td>
-                        <td>
-                          <div className="cell-with-subtitle">
-                            <span className="cell-main">{lab.phone}</span>
-                            <span className="cell-sub">{lab.email}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="cell-with-icon">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2"/>
-                              <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2"/>
-                            </svg>
-                            <span>{lab.city || 'N/A'}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className="badge badge-success">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            </svg>
-                            Active
-                          </span>
-                        </td>
-                        <td>
-                          <span className="cell-main">{lab.labTiming || 'N/A'}</span>
-                        </td>
-                        <td>
-                          <div className="action-buttons">
-                            <button
-                              className="btn-icon btn-view"
-                              onClick={() => viewDetails(lab.id)}
-                              title="View Details"
-                            >
-                              <i className="bi bi-eye"></i>
-                            </button>
-                            {lab.status === 'active' ? (
-                              <button
-                                className="btn-icon btn-deactivate"
-                                onClick={() => handleDeactivate(lab)}
-                                title="Deactivate Lab"
-                              >
-                                <i className="bi bi-pause-circle"></i>
-                              </button>
-                            ) : (
-                              <button
-                                className="btn-icon btn-activate"
-                                onClick={() => handleActivate(lab)}
-                                title="Activate Lab"
-                              >
-                                <i className="bi bi-play-circle"></i>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="card border-0 shadow-sm">
+                  <div className="card-body p-0">
+                    <div className="table-responsive">
+                      <table className="table table-hover mb-0">
+                        <thead className="table-light">
+                          <tr>
+                            <th className="px-4 py-3">Lab Info</th>
+                            <th className="px-4 py-3">City</th>
+                            <th className="px-4 py-3">License Number</th>
+                            <th className="px-4 py-3">Lab Timing</th>
+                            <th className="px-4 py-3">Contact</th>
+                            <th className="px-4 py-3 text-center">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginatedLabs.map((lab) => (
+                            <tr key={lab.id}>
+                              <td className="px-4 py-3">
+                                <div className="d-flex align-items-center">
+                                  {lab.profilePicUrl ? (
+                                    <img
+                                      src={lab.profilePicUrl}
+                                      alt={lab.name}
+                                      className="rounded-circle me-3"
+                                      style={{width: '40px', height: '40px', objectFit: 'cover'}}
+                                    />
+                                  ) : (
+                                    <div className="lab-avatar-circle me-3">
+                                      <i className="bi bi-building"></i>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="fw-semibold">{lab.name}</div>
+                                    <small className="text-muted">{lab.email}</small>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className="badge bg-info bg-opacity-10 text-info">
+                                  {lab.city || 'N/A'}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <code className="text-dark">{lab.licenseNumber}</code>
+                              </td>
+                              <td className="px-4 py-3">
+                                <small>{lab.labTiming || 'N/A'}</small>
+                              </td>
+                              <td className="px-4 py-3">
+                                <small>{lab.phone}</small>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="d-flex gap-2 justify-content-center">
+                                  <button
+                                    className="btn btn-sm btn-outline-info"
+                                    onClick={() => viewDetails(lab.id)}
+                                    title="View Details"
+                                  >
+                                    <i className="bi bi-eye"></i>
+                                  </button>
+                                  {lab.status === 'active' ? (
+                                    <button
+                                      className="btn btn-sm btn-outline-warning"
+                                      onClick={() => handleDeactivate(lab)}
+                                      title="Deactivate Lab"
+                                    >
+                                      <i className="bi bi-pause-circle"></i>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      className="btn btn-sm btn-outline-success"
+                                      onClick={() => handleActivate(lab)}
+                                      title="Activate Lab"
+                                    >
+                                      <i className="bi bi-play-circle"></i>
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
 
                 {/* Pagination */}
                 {totalPages > 1 && (

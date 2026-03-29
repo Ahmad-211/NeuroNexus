@@ -172,50 +172,47 @@ function LabBookingDetails() {
                       <i className="bi bi-person-circle me-2 text-primary"></i>
                       Patient Information
                     </h5>
-                    <div className="row g-4">
-                      <div className="col-md-6">
-                        <div className="info-item">
-                          <label className="text-muted small">Full Name</label>
-                          <p className="fw-semibold mb-0">{patientName}</p>
-                        </div>
+                    {/* Bar 1: Full Name | Phone | Email */}
+                    <div className="booking-info-bar mb-3">
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Full Name</label>
+                        <p className="fw-semibold mb-0">{patientName}</p>
                       </div>
-                      <div className="col-md-6">
-                        <div className="info-item">
-                          <label className="text-muted small">Phone Number</label>
-                          <p className="fw-semibold mb-0">
-                            <i className="bi bi-telephone me-2"></i>
-                            {patientInfo.contactNumber || 'N/A'}
-                          </p>
-                        </div>
+                      <div className="booking-info-bar-divider"></div>
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Phone Number</label>
+                        <p className="fw-semibold mb-0">
+                          <i className="bi bi-telephone me-2"></i>
+                          {patientInfo.contactNumber || 'N/A'}
+                        </p>
                       </div>
-                      <div className="col-md-6">
-                        <div className="info-item">
-                          <label className="text-muted small">Email Address</label>
-                          <p className="fw-semibold mb-0">
-                            <i className="bi bi-envelope me-2"></i>
-                            {patientInfo.email || 'N/A'}
-                          </p>
-                        </div>
+                      <div className="booking-info-bar-divider"></div>
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Email Address</label>
+                        <p className="fw-semibold mb-0">
+                          {patientInfo.email || 'N/A'}
+                        </p>
                       </div>
-                      <div className="col-md-3">
-                        <div className="info-item">
-                          <label className="text-muted small">Age</label>
-                          <p className="fw-semibold mb-0">{patientInfo.age ? `${patientInfo.age} years` : 'N/A'}</p>
-                        </div>
+                    </div>
+                    {/* Bar 2: Age | Gender | Relation */}
+                    <div className="booking-info-bar">
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Age</label>
+                        <p className="fw-semibold mb-0">{patientInfo.age ? `${patientInfo.age} years` : 'N/A'}</p>
                       </div>
-                      <div className="col-md-3">
-                        <div className="info-item">
-                          <label className="text-muted small">Gender</label>
-                          <p className="fw-semibold mb-0">{patientInfo.gender || 'N/A'}</p>
-                        </div>
+                      <div className="booking-info-bar-divider"></div>
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Gender</label>
+                        <p className="fw-semibold mb-0">{patientInfo.gender || 'N/A'}</p>
                       </div>
                       {patientInfo.relation && (
-                        <div className="col-md-6">
-                          <div className="info-item">
-                            <label className="text-muted small">Relation</label>
+                        <>
+                          <div className="booking-info-bar-divider"></div>
+                          <div className="booking-info-bar-item">
+                            <label className="text-muted small d-block">Relation</label>
                             <p className="fw-semibold mb-0">{patientInfo.relation}</p>
                           </div>
-                        </div>
+                        </>
                       )}
                     </div>
                   </div>
@@ -228,38 +225,38 @@ function LabBookingDetails() {
                       <i className="bi bi-file-medical me-2 text-primary"></i>
                       Test Information
                     </h5>
-                    <div className="row g-4">
-                      <div className="col-12">
-                        <div className="info-item">
-                          <label className="text-muted small">Test Name</label>
-                          <p className="fw-semibold mb-0 fs-5">{booking.testName || 'N/A'}</p>
-                        </div>
+                    {/* Bar 1: Test Name | Price */}
+                    <div className="booking-info-bar mb-3">
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Test Name</label>
+                        <p className="fw-semibold mb-0 fs-5">{booking.testName || 'N/A'}</p>
                       </div>
-                      <div className="col-md-6">
-                        <div className="info-item">
-                          <label className="text-muted small">Test Type</label>
-                          <p className="mb-0">
-                            <span className="badge bg-primary-subtle text-primary">
-                              {booking.testType || booking.bookingType || 'N/A'}
-                            </span>
-                          </p>
-                        </div>
+                      <div className="booking-info-bar-divider"></div>
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Price</label>
+                        <p className="fw-bold mb-0 fs-4 text-success">
+                          {payment.amount ? `PKR${payment.amount}` : 'N/A'}
+                        </p>
                       </div>
-                      <div className="col-md-6">
-                        <div className="info-item">
-                          <label className="text-muted small">Price</label>
-                          <p className="fw-bold mb-0 fs-4 text-success">
-                            {payment.amount ? `${payment.currency || '₹'}${payment.amount}` : 'N/A'}
-                          </p>
-                        </div>
+                    </div>
+                    {/* Bar 2: Test Type | Test ID */}
+                    <div className="booking-info-bar">
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Test Type</label>
+                        <p className="mb-0">
+                          <span className="badge bg-primary-subtle text-primary">
+                            {booking.testType || booking.bookingType || 'N/A'}
+                          </span>
+                        </p>
                       </div>
                       {booking.testId && (
-                        <div className="col-12">
-                          <div className="info-item">
-                            <label className="text-muted small">Test ID</label>
-                            <p className="mb-0 text-secondary">{booking.testId}</p>
+                        <>
+                          <div className="booking-info-bar-divider"></div>
+                          <div className="booking-info-bar-item">
+                            <label className="text-muted small d-block">Test ID</label>
+                            <p className="mb-0 text-secondary small">{booking.testId}</p>
                           </div>
-                        </div>
+                        </>
                       )}
                     </div>
                   </div>
@@ -272,35 +269,31 @@ function LabBookingDetails() {
                       <i className="bi bi-calendar-check me-2 text-primary"></i>
                       Booking Information
                     </h5>
-                    <div className="row g-4">
-                      <div className="col-md-4">
-                        <div className="info-item">
-                          <label className="text-muted small">Test Date</label>
-                          <p className="fw-semibold mb-0">
-                            <i className="bi bi-calendar3 me-2"></i>
-                            {booking.testDate || 'N/A'}
-                          </p>
-                        </div>
+                    <div className="booking-info-bar">
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Test Date</label>
+                        <p className="fw-semibold mb-0">
+                          <i className="bi bi-calendar3 me-2"></i>
+                          {booking.testDate || 'N/A'}
+                        </p>
                       </div>
-                      <div className="col-md-4">
-                        <div className="info-item">
-                          <label className="text-muted small">Test Time</label>
-                          <p className="fw-semibold mb-0">
-                            <i className="bi bi-clock me-2"></i>
-                            {booking.testTime || 'N/A'}
-                          </p>
-                        </div>
+                      <div className="booking-info-bar-divider"></div>
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Test Time</label>
+                        <p className="fw-semibold mb-0">
+                          <i className="bi bi-clock me-2"></i>
+                          {booking.testTime || 'N/A'}
+                        </p>
                       </div>
-                      <div className="col-md-4">
-                        <div className="info-item">
-                          <label className="text-muted small">Created On</label>
-                          <p className="fw-semibold mb-0">
-                            {formatDate(booking.createdAt)}
-                          </p>
-                        </div>
+                      <div className="booking-info-bar-divider"></div>
+                      <div className="booking-info-bar-item">
+                        <label className="text-muted small d-block">Created On</label>
+                        <p className="fw-semibold mb-0">{formatDate(booking.createdAt)}</p>
                       </div>
-                      {booking.bookingType && (
-                        <div className="col-md-4">
+                    </div>
+                    {booking.bookingType && (
+                      <div className="row g-0 mt-3 pt-3 border-top">
+                        <div className="col-md-4 detail-field">
                           <div className="info-item">
                             <label className="text-muted small">Booking Type</label>
                             <p className="fw-semibold mb-0">
@@ -308,8 +301,8 @@ function LabBookingDetails() {
                             </p>
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
