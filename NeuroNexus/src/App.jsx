@@ -19,6 +19,7 @@ import LabDetails from './pages/admin/Labs/LabDetails'
 import PendingDoctors from './pages/admin/Doctors/PendingDoctors'
 import ApprovedDoctors from './pages/admin/Doctors/ApprovedDoctors'
 import DoctorDetails from './pages/admin/Doctors/DoctorDetails'
+import ManageCategories from './pages/admin/Doctors/ManageCategories'
 import AllPatients from './pages/admin/Patients/AllPatients'
 import AllBookings from './pages/admin/Bookings/AllBookings'
 import AllPayments from './pages/admin/Payments/AllPayments'
@@ -64,6 +65,7 @@ function App() {
         <Route path="/labs" element={<Navigate to="/labs/pending" replace />} />
         <Route path="/doctors/pending" element={<AdminProtectedRoute><PendingDoctors /></AdminProtectedRoute>} />
         <Route path="/doctors/approved" element={<AdminProtectedRoute><ApprovedDoctors /></AdminProtectedRoute>} />
+        <Route path="/doctors/categories" element={<AdminProtectedRoute><ManageCategories /></AdminProtectedRoute>} />
         <Route path="/doctors/:id" element={<AdminProtectedRoute><DoctorDetails /></AdminProtectedRoute>} />
         <Route path="/doctors" element={<Navigate to="/doctors/pending" replace />} />
         <Route path="/patients" element={<AdminProtectedRoute><AllPatients /></AdminProtectedRoute>} />

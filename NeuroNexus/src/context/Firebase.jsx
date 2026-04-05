@@ -1204,6 +1204,92 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  // ── Doctor Categories ──────────────────────────────────────────────────────
+
+  const DEFAULT_CATEGORIES = [
+    'Cardiology', 'Dermatology', 'Endocrinology', 'Gastroenterology',
+    'General Practice', 'Gynecology', 'Neurology', 'Oncology',
+    'Ophthalmology', 'Orthopedics', 'Pediatrics', 'Psychiatry',
+    'Pulmonology', 'Radiology', 'Urology', 'ENT (Ear, Nose & Throat)'
+  ];
+
+  const initializeDoctorCategories = async () => {
+    try {
+      const catRef = ref(database, 'doctor_categories');
+      const snapshot = await get(catRef);
+      if (!snapshot.exists()) {
+        const promises = DEFAULT_CATEGORIES.map(name =>
+          push(catRef, { name })
+        );
+        await Promise.all(promises);
+      }
+    } catch (error) {
+      console.error('initializeDoctorCategories error:', error);
+    }
+  };
+
+  const getDoctorCategories = async () => {
+    try {
+      const catRef = ref(database, 'doctor_categories');
+      const snapshot = await get(catRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const categories = Object.keys(data).map(id => ({ id, name: data[id].name }));
+        categories.sort((a, b) => a.name.localeCompare(b.name));
+        return { success: true, categories };
+      }
+      return { success: true, categories: [] };
+    } catch (error) {
+      console.error('getDoctorCategories error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const addDoctorCategory = async (name) => {
+    try {
+      const trimmed = name.trim();
+      if (!trimmed) return { success: false, error: 'Category name cannot be empty' };
+      const { categories } = await getDoctorCategories();
+      const duplicate = categories.some(
+        c => c.name.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (duplicate) return { success: false, error: 'Category already exists' };
+      const catRef = ref(database, 'doctor_categories');
+      await push(catRef, { name: trimmed });
+      return { success: true };
+    } catch (error) {
+      console.error('addDoctorCategory error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const removeDoctorCategory = async (id) => {
+    try {
+      await remove(ref(database, `doctor_categories/${id}`));
+      return { success: true };
+    } catch (error) {
+      console.error('removeDoctorCategory error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateDoctorCategory = async (id, newName) => {
+    try {
+      const trimmed = newName.trim();
+      if (!trimmed) return { success: false, error: 'Category name cannot be empty' };
+      const { categories } = await getDoctorCategories();
+      const duplicate = categories.some(
+        c => c.id !== id && c.name.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (duplicate) return { success: false, error: 'Category already exists' };
+      await update(ref(database, `doctor_categories/${id}`), { name: trimmed });
+      return { success: true };
+    } catch (error) {
+      console.error('updateDoctorCategory error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   const value = {
     currentUser,
     userRole,
@@ -1243,6 +1329,11 @@ export const FirebaseProvider = ({ children }) => {
     getAllPatients,
     togglePatientStatus,
     logout,
+    initializeDoctorCategories,
+    getDoctorCategories,
+    addDoctorCategory,
+    removeDoctorCategory,
+    updateDoctorCategory,
     auth,
     database,
     storage

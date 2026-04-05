@@ -11,30 +11,39 @@ function ApprovedDoctors() {
   const [selectedSpecialization, setSelectedSpecialization] = useState('all');
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
   const [doctors, setDoctors] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const navigate = useNavigate();
-  const { getAllDoctors, loading } = useFirebase();
+  const { getAllDoctors, getDoctorCategories, loading } = useFirebase();
 
   useEffect(() => {
     if (!loading) {
-      fetchApprovedDoctors();
+      fetchData();
     }
   }, [loading]);
 
-  const fetchApprovedDoctors = async () => {
+  const fetchData = async () => {
     setIsLoading(true);
     try {
-      const result = await getAllDoctors();
-      if (result.success) {
-        const approved = result.doctors.filter(
+      const [docResult, catResult] = await Promise.all([
+        getAllDoctors(),
+        getDoctorCategories()
+      ]);
+
+      if (docResult.success) {
+        const approved = docResult.doctors.filter(
           doc => doc.registrationStatus === 'approved'
         );
         setDoctors(approved);
       }
+
+      if (catResult.success) {
+        setCategories(catResult.categories);
+      }
     } catch (error) {
-      console.error('Error fetching approved doctors:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -57,8 +66,8 @@ function ApprovedDoctors() {
     navigate(`/admin/doctors/${doctorId}`);
   };
 
-  // Get unique specializations for filter
-  const specializations = ['all', ...new Set(doctors.map(doc => doc.specialization))];
+  // Get specializations from Firebase categories, adding 'all' option
+  const specializations = ['all', ...categories.map(c => c.name)];
 
   // Filter doctors
   const filteredDoctors = doctors.filter(doctor => {
@@ -165,8 +174,11 @@ function ApprovedDoctors() {
                         <i className="bi bi-grid-3x3-gap"></i>
                       </button>
                     </div>
-                    <button className="btn btn-outline-secondary ms-2">
-                      <i className="bi bi-download me-1"></i> Export
+                    <button
+                      className="btn btn-manage-categories ms-2"
+                      onClick={() => navigate('/doctors/categories')}
+                    >
+                      <i className="bi bi-tags me-1"></i> Manage Categories
                     </button>
                   </div>
                 </div>

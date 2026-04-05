@@ -1,0 +1,28 @@
+/* ManageCategories.css */
+
+.category-item {
+  transition: background-color 0.15s ease;
+}
+
+.category-item:hover {
+  background-color: #f8f9ff;
+}
+
+.category-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e8eaff;
+  color: #4c6ef5;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.category-name {
+  font-size: 0.95rem;
+  color: #212529;
+}
