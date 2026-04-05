@@ -5,7 +5,7 @@ import Sidebar from '../../../components/Sidebar/Sidebar';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
-  const { getAllLabs, getAllDoctors, getAllComplaints } = useFirebase();
+  const { getAllLabs, getAllDoctors, getAllComplaints, getAllPatients, getAllBookings } = useFirebase();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [stats, setStats] = useState({
@@ -13,7 +13,11 @@ function AdminDashboard() {
     pendingLabApprovals: 0,
     totalDoctors: 0,
     pendingDoctorApprovals: 0,
-    totalComplaints: 0
+    totalComplaints: 0,
+    totalPatients: 0,
+    activePatients: 0,
+    totalBookings: 0,
+    completedBookings: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -45,12 +49,28 @@ function AdminDashboard() {
       const complaints = complaintsResult.success ? complaintsResult.complaints : [];
       const totalComplaints = complaints.length;
 
+      // Fetch all patients
+      const patientsResult = await getAllPatients();
+      const patients = patientsResult.success ? patientsResult.patients : [];
+      const totalPatients = patients.length;
+      const activePatients = patients.filter(patient => patient.status === 'active').length;
+
+      // Fetch all bookings
+      const bookingsResult = await getAllBookings();
+      const bookings = bookingsResult.success ? bookingsResult.bookings : [];
+      const totalBookings = bookings.length;
+      const completedBookings = bookings.filter(booking => booking.status === 'completed').length;
+
       setStats({
         totalLabs,
         pendingLabApprovals,
         totalDoctors,
         pendingDoctorApprovals,
-        totalComplaints
+        totalComplaints,
+        totalPatients,
+        activePatients,
+        totalBookings,
+        completedBookings
       });
 
       setLoading(false);
@@ -84,9 +104,6 @@ function AdminDashboard() {
                 <p className="text-muted mb-0">Here's what's happening in your healthcare system today.</p>
               </div>
               <div className="col-md-6 text-md-end">
-                <button className="btn btn-primary btn-sm me-2">
-                  <i className="bi bi-download me-1"></i> Export Report
-                </button>
                 <button className="btn btn-outline-secondary btn-sm">
                   <i className="bi bi-calendar me-1"></i> {todayDate}
                 </button>
@@ -168,7 +185,7 @@ function AdminDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Total Patients</p>
-                      <h3 className="mb-0 fw-bold text-dark">892</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalPatients}</h3>
                       <small className="text-success"><i className="bi bi-arrow-up"></i> +25% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -184,7 +201,7 @@ function AdminDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Active Patients</p>
-                      <h3 className="mb-0 fw-bold text-dark">654</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.activePatients}</h3>
                       <small className="text-success"><i className="bi bi-arrow-up"></i> +18% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -200,7 +217,7 @@ function AdminDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Total Bookings</p>
-                      <h3 className="mb-0 fw-bold text-dark">342</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalBookings}</h3>
                       <small className="text-success"><i className="bi bi-arrow-up"></i> +15% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -216,7 +233,7 @@ function AdminDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Completed</p>
-                      <h3 className="mb-0 fw-bold text-dark">287</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.completedBookings}</h3>
                       <small className="text-success"><i className="bi bi-arrow-up"></i> +20% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>

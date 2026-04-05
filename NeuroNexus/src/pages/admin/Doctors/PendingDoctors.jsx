@@ -9,34 +9,43 @@ import './PendingDoctors.css';
 
 function PendingDoctors() {
   const navigate = useNavigate();
-  const { getAllDoctors, approveDoctor, rejectDoctor, loading } = useFirebase();
+  const { getAllDoctors, getDoctorCategories, approveDoctor, rejectDoctor, loading } = useFirebase();
   const { alert, showSuccess, showError, closeAlert } = useAlert();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('all');
   const [pendingDoctors, setPendingDoctors] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showLicenseModal, setShowLicenseModal] = useState(false);
 
   useEffect(() => {
     if (!loading) {
-      fetchPendingDoctors();
+      fetchData();
     }
   }, [loading]);
 
-  const fetchPendingDoctors = async () => {
+  const fetchData = async () => {
     setIsLoading(true);
     try {
-      const result = await getAllDoctors();
-      if (result.success) {
-        const pending = result.doctors.filter(
+      const [docResult, catResult] = await Promise.all([
+        getAllDoctors(),
+        getDoctorCategories()
+      ]);
+
+      if (docResult.success) {
+        const pending = docResult.doctors.filter(
           doc => doc.registrationStatus === 'pending'
         );
         setPendingDoctors(pending);
       }
+
+      if (catResult.success) {
+        setCategories(catResult.categories);
+      }
     } catch (error) {
-      console.error('Error fetching pending doctors:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -79,8 +88,8 @@ function PendingDoctors() {
     }
   };
 
-  // Get unique specializations for filter
-  const specializations = ['all', ...new Set(pendingDoctors.map(doc => doc.specialization))];
+  // Get specializations from Firebase categories, adding 'all' option
+  const specializations = ['all', ...categories.map(c => c.name)];
 
   // Filter doctors based on search and specialization
   const filteredDoctors = pendingDoctors.filter(doctor => {

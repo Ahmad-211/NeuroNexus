@@ -7,10 +7,13 @@ import './LabDashboard.css';
 
 function LabDashboard() {
   const navigate = useNavigate();
-  const { getLabTests, currentUser } = useFirebase();
+  const { getLabTests, getLabBookings, currentUser } = useFirebase();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [totalTests, setTotalTests] = useState(0);
+  const [pendingBookings, setPendingBookings] = useState(0);
+  const [completedBookings, setCompletedBookings] = useState(0);
+  const [todaysAppointments, setTodaysAppointments] = useState(0);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -31,22 +34,57 @@ function LabDashboard() {
   }, []);
 
   // Fetch total tests count
+  // Fetch total tests and bookings count
   useEffect(() => {
-    const fetchTotalTests = async () => {
+    const fetchDashboardStats = async () => {
       if (!currentUser) return;
 
       try {
-        const result = await getLabTests(currentUser.uid);
-        if (result.success && result.tests) {
-          setTotalTests(result.tests.length);
+        // Fetch Tests
+        const testsResult = await getLabTests(currentUser.uid);
+        if (testsResult.success && testsResult.tests) {
+          setTotalTests(testsResult.tests.length);
+        }
+
+        // Fetch Bookings
+        const bookingsResult = await getLabBookings(currentUser.uid);
+        if (bookingsResult.success && bookingsResult.bookings) {
+          const bookings = bookingsResult.bookings;
+          
+          let pendingCount = 0;
+          let completedCount = 0;
+          let todayCount = 0;
+          
+          // Use YYYY-MM-DD to check strings easily
+          const todayStr = new Date().toISOString().split('T')[0];
+          const todayDateObj = new Date();
+
+          bookings.forEach(booking => {
+            if (booking.status === 'pending') {
+              pendingCount++;
+            } else if (booking.status === 'completed') {
+              completedCount++;
+            }
+            
+            const bDate = booking.testDate || booking.selectedDate || booking.date;
+            if (bDate) {
+              if (bDate === todayStr || new Date(bDate).toDateString() === todayDateObj.toDateString()) {
+                todayCount++;
+              }
+            }
+          });
+
+          setPendingBookings(pendingCount);
+          setCompletedBookings(completedCount);
+          setTodaysAppointments(todayCount);
         }
       } catch (error) {
-        console.error('Error fetching tests count:', error);
+        console.error('Error fetching dashboard stats:', error);
       }
     };
 
-    fetchTotalTests();
-  }, [currentUser, getLabTests]);
+    fetchDashboardStats();
+  }, [currentUser, getLabTests, getLabBookings]);
 
   return (
     <div className="d-flex vh-100">
@@ -64,9 +102,6 @@ function LabDashboard() {
                 <p className="text-muted mb-0">Here's what's happening in your laboratory today.</p>
               </div>
               <div className="col-md-6 text-md-end">
-                <button className="btn btn-primary btn-sm me-2">
-                  <i className="bi bi-download me-1"></i> Export Report
-                </button>
                 <button className="btn btn-outline-secondary btn-sm">
                   <i className="bi bi-calendar me-1"></i> {todayDate}
                 </button>
@@ -97,7 +132,7 @@ function LabDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Pending Bookings</p>
-                      <h3 className="mb-0 fw-bold text-warning">12</h3>
+                      <h3 className="mb-0 fw-bold text-warning">{pendingBookings}</h3>
                       <small className="text-danger"><i className="bi bi-exclamation-circle"></i> Needs attention</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -113,7 +148,7 @@ function LabDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Completed Bookings</p>
-                      <h3 className="mb-0 fw-bold text-dark">187</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{completedBookings}</h3>
                       <small className="text-success"><i className="bi bi-arrow-up"></i> +22% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -129,7 +164,7 @@ function LabDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Today's Appointments</p>
-                      <h3 className="mb-0 fw-bold text-dark">8</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{todaysAppointments}</h3>
                       <small className="text-info"><i className="bi bi-clock"></i> In progress</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -161,7 +196,7 @@ function LabDashboard() {
                   <div className="d-flex justify-content-between align-items-start">
                     <div>
                       <p className="text-muted mb-1 small">Active Tests</p>
-                      <h3 className="mb-0 fw-bold text-dark">156</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{totalTests}</h3>
                       <small className="text-success"><i className="bi bi-arrow-up"></i> +12% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fce7f3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
