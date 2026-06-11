@@ -411,6 +411,28 @@ function LabBookingDetails() {
                     )}
                   </div>
                 </div>
+
+                {/* Upload Report Entry Point */}
+                {(booking.status === 'confirmed' || booking.status === 'completed') && (
+                  <div className="card border-0 shadow-sm mt-4">
+                    <div className="card-body p-4 text-center">
+                      <h5 className="card-title mb-3 fw-bold">
+                        <i className="bi bi-file-earmark-medical me-2 text-primary"></i>
+                        Lab Report
+                      </h5>
+                      <p className="text-muted small mb-3">
+                        Upload and share the test results with the patient.
+                      </p>
+                      <button
+                        className="btn btn-success w-100"
+                        onClick={() => navigate('/lab/reports', { state: { preselectedBookingId: booking.id || booking.bookingId } })}
+                      >
+                        <i className="bi bi-upload me-2"></i>
+                        Upload Report
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

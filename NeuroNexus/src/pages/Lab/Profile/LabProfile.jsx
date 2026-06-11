@@ -23,7 +23,9 @@ function LabProfile() {
     phone: '',
     labTiming: '',
     labDescription: '',
-    logo: null
+    logo: null,
+    offersInstallments: false,
+    maxInstallments: 0
   });
 
   // Password State
@@ -52,7 +54,9 @@ function LabProfile() {
             phone: labData.phone || '',
             labTiming: labData.labTiming || '',
             labDescription: labData.labDescription || '',
-            logo: labData.profilePicUrl || null
+            logo: labData.profilePicUrl || null,
+            offersInstallments: labData.offersInstallments || false,
+            maxInstallments: labData.maxInstallments || 0
           });
           setLogoPreview(labData.profilePicUrl || 'https://via.placeholder.com/150?text=Lab+Logo');
         }
@@ -72,8 +76,11 @@ function LabProfile() {
   };
 
   const handleProfileChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setProfileData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
   };
 
   const handlePasswordChange = (e) => {
@@ -112,12 +119,14 @@ function LabProfile() {
         }
       }
       
-      // Update profile data (only phone, labTiming, labDescription, and logo)
+      // Update profile data
       const updateData = {
         phone: profileData.phone,
         labTiming: profileData.labTiming,
         labDescription: profileData.labDescription,
-        profilePicUrl: logoUrl
+        profilePicUrl: logoUrl,
+        offersInstallments: profileData.offersInstallments,
+        maxInstallments: profileData.offersInstallments ? Number(profileData.maxInstallments) : 0
       };
       
       const result = await updateLabProfile(currentUser.uid, updateData);
@@ -136,7 +145,9 @@ function LabProfile() {
             phone: labData.phone || '',
             labTiming: labData.labTiming || '',
             labDescription: labData.labDescription || '',
-            logo: labData.profilePicUrl || null
+            logo: labData.profilePicUrl || null,
+            offersInstallments: labData.offersInstallments || false,
+            maxInstallments: labData.maxInstallments || 0
           });
           setLogoPreview(labData.profilePicUrl || 'https://via.placeholder.com/150?text=Lab+Logo');
         }
@@ -325,6 +336,43 @@ function LabProfile() {
                             disabled={!isEditing}
                             placeholder="Enter lab description..."
                           ></textarea>
+                        </div>
+
+                        {/* Installment Options */}
+                        <div className="col-12 mt-4">
+                          <h6 className="mb-3 border-bottom pb-2">Payment Settings</h6>
+                          <div className="form-check form-switch mb-3">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="offersInstallments"
+                              name="offersInstallments"
+                              checked={profileData.offersInstallments}
+                              onChange={handleProfileChange}
+                              disabled={!isEditing}
+                            />
+                            <label className="form-check-label fw-semibold" htmlFor="offersInstallments">
+                              Offer Installments (on Total Bill)
+                            </label>
+                          </div>
+                          
+                          {profileData.offersInstallments && (
+                            <div className="col-md-6 ms-4 ps-2 border-start">
+                              <label className="form-label text-muted small">Max Number of Installments</label>
+                              <input
+                                type="number"
+                                className="form-control"
+                                name="maxInstallments"
+                                value={profileData.maxInstallments}
+                                onChange={handleProfileChange}
+                                disabled={!isEditing}
+                                placeholder="e.g., 3"
+                                min="2"
+                                max="12"
+                                required={profileData.offersInstallments}
+                              />
+                            </div>
+                          )}
                         </div>
                       </div>
                       {isEditing && (

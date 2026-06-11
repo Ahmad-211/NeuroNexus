@@ -1,5 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { createContext, useContext, useState, useEffect } from "react";
+import { uploadImageToCloudinary } from "../utils/uploadCloudinary";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { 
@@ -230,7 +231,7 @@ export const FirebaseProvider = ({ children }) => {
   // Lab Signup Function
   const signupLab = async (labData) => {
     try {
-      const { email, password, name, licenseNumber, address, phone, labTiming, city, licenseFile, logoFile } = labData;
+      const { email, password, name, licenseNumber, address, phone, labTiming, city, licenseFile, logoFile, offersInstallments, maxInstallments } = labData;
 
       // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -241,22 +242,12 @@ export const FirebaseProvider = ({ children }) => {
 
       // Upload license file if provided
       if (licenseFile) {
-        const fileExtension = licenseFile.name.split('.').pop();
-        const licensePath = `license_images/labs/${user.uid}.${fileExtension}`;
-        const licenseStorageRef = storageRef(storage, licensePath);
-        
-        await uploadBytes(licenseStorageRef, licenseFile);
-        licenseImageUrl = await getDownloadURL(licenseStorageRef);
+        licenseImageUrl = await uploadImageToCloudinary(licenseFile);
       }
 
       // Upload logo file if provided
       if (logoFile) {
-        const fileExtension = logoFile.name.split('.').pop();
-        const logoPath = `profile_pics/labs/${user.uid}.${fileExtension}`;
-        const logoStorageRef = storageRef(storage, logoPath);
-        
-        await uploadBytes(logoStorageRef, logoFile);
-        profilePicUrl = await getDownloadURL(logoStorageRef);
+        profilePicUrl = await uploadImageToCloudinary(logoFile);
       }
 
       // Create entry in users node
@@ -280,7 +271,9 @@ export const FirebaseProvider = ({ children }) => {
         labTiming: labTiming,
         registrationStatus: "pending",
         licenseImageUrl: licenseImageUrl,
-        profilePicUrl: profilePicUrl
+        profilePicUrl: profilePicUrl,
+        offersInstallments: offersInstallments || false,
+        maxInstallments: maxInstallments || 0
       });
 
       // Send notification to admin
@@ -399,6 +392,8 @@ export const FirebaseProvider = ({ children }) => {
       if (profileData.labTiming !== undefined) updateData.labTiming = profileData.labTiming;
       if (profileData.labDescription !== undefined) updateData.labDescription = profileData.labDescription;
       if (profileData.profilePicUrl !== undefined) updateData.profilePicUrl = profileData.profilePicUrl;
+      if (profileData.offersInstallments !== undefined) updateData.offersInstallments = profileData.offersInstallments;
+      if (profileData.maxInstallments !== undefined) updateData.maxInstallments = profileData.maxInstallments;
       
       // Update the lab profile
       await update(labRef, updateData);
@@ -413,10 +408,7 @@ export const FirebaseProvider = ({ children }) => {
   // Upload Lab Logo to Storage
   const uploadLabLogo = async (labUid, file) => {
     try {
-      const fileExtension = file.name.split('.').pop();
-      const logoRef = storageRef(storage, `profile_pics/labs/${labUid}.${fileExtension}`);
-      await uploadBytes(logoRef, file);
-      const downloadURL = await getDownloadURL(logoRef);
+      const downloadURL = await uploadImageToCloudinary(file);
       return { success: true, url: downloadURL };
     } catch (error) {
       console.error("Upload logo error:", error);
@@ -604,7 +596,7 @@ export const FirebaseProvider = ({ children }) => {
   // Add Test Function
   const addTest = async (labId, testData) => {
     try {
-      const { testName, category, price, description, installments, noOfInstallments } = testData;
+      const { testName, category, price, description } = testData;
 
       // Generate unique test ID
       const testId = `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -617,15 +609,9 @@ export const FirebaseProvider = ({ children }) => {
         category: category,
         price: price,
         description: description,
-        installments: installments,
         createdBy: labId,
         createdAt: Date.now()
       };
-
-      // Add number of installments only if installments is yes
-      if (installments === 'yes' && noOfInstallments) {
-        testDetails.noOfInstallments = noOfInstallments;
-      }
 
       await set(testRef, testDetails);
 
@@ -653,7 +639,7 @@ export const FirebaseProvider = ({ children }) => {
   // Update Test Function
   const updateTest = async (labId, testId, testData) => {
     try {
-      const { testName, category, price, description, installments, noOfInstallments } = testData;
+      const { testName, category, price, description } = testData;
 
       // Update test in global tests node
       const testRef = ref(database, `tests/${testId}`);
@@ -662,14 +648,8 @@ export const FirebaseProvider = ({ children }) => {
         category: category,
         price: price,
         description: description,
-        installments: installments,
         updatedAt: Date.now()
       };
-
-      // Add or remove number of installments based on selection
-      if (installments === 'yes' && noOfInstallments) {
-        testDetails.noOfInstallments = noOfInstallments;
-      }
 
       await update(testRef, testDetails);
 
@@ -1290,6 +1270,98 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  const uploadReportFile = async (file) => {
+    try {
+      const url = await uploadImageToCloudinary(file);
+      if (!url) throw new Error('Cloudinary upload returned no URL');
+      return { success: true, url };
+    } catch (error) {
+      console.error('uploadReportFile error:', error);
+      return { success: false, error: error.message || 'Upload to Cloudinary failed' };
+    }
+  };
+
+  const saveLabReport = async (reportData) => {
+    try {
+      const { patientProfileId, labId } = reportData;
+      
+      const newRef = push(ref(database, `medical_records/${patientProfileId}/lab_reports`));
+      const reportId = newRef.key;
+      
+      const fullReportData = {
+        ...reportData,
+        reportId
+      };
+      
+      await set(newRef, fullReportData);
+      
+      const labIndexRef = ref(database, `labReports/${labId}/${reportId}`);
+      await set(labIndexRef, {
+        bookingId: reportData.bookingId,
+        patientProfileId: reportData.patientProfileId,
+        patientName: reportData.patientName,
+        testId: reportData.testId,
+        testName: reportData.testName,
+        fileUrl: reportData.fileUrl,
+        issuedDate: reportData.issuedDate
+      });
+      
+      return { success: true, reportId };
+    } catch (error) {
+      console.error('saveLabReport error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const getLabReports = async (labId) => {
+    try {
+      const reportsRef = ref(database, `labReports/${labId}`);
+      const snapshot = await get(reportsRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const reports = Object.keys(data).map(id => ({ id, ...data[id] }));
+        reports.sort((a, b) => b.issuedDate - a.issuedDate);
+        return { success: true, data: reports };
+      }
+      return { success: true, data: [] };
+    } catch (error) {
+      console.error('getLabReports error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const notifyReportShared = async (patientUid, labUid, reportData) => {
+    try {
+      const patientNotifRef = ref(database, `notifications/${patientUid}`);
+      await push(patientNotifRef, {
+        type: "REPORT_READY",
+        title: "New Lab Report Available",
+        message: `Your ${reportData.testName} report from ${reportData.labName} is now available.`,
+        bookingId: reportData.bookingId,
+        reportId: reportData.reportId,
+        testId: reportData.testId,
+        read: false,
+        createdAt: Date.now()
+      });
+
+      const labNotifRef = ref(database, `notifications/${labUid}`);
+      await push(labNotifRef, {
+        type: "REPORT_SHARED",
+        title: "Report Shared Successfully",
+        message: `${reportData.testName} report shared with ${reportData.patientName}`,
+        bookingId: reportData.bookingId,
+        reportId: reportData.reportId,
+        testId: reportData.testId,
+        read: false,
+        createdAt: Date.now()
+      });
+      return { success: true };
+    } catch (error) {
+      console.error('notifyReportShared error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   const value = {
     currentUser,
     userRole,
@@ -1334,6 +1406,10 @@ export const FirebaseProvider = ({ children }) => {
     addDoctorCategory,
     removeDoctorCategory,
     updateDoctorCategory,
+    saveLabReport,
+    getLabReports,
+    uploadReportFile,
+    notifyReportShared,
     auth,
     database,
     storage

@@ -22,6 +22,8 @@ function LabSignup() {
     licenseFile: null,
     logoFile: null,
     labTiming: '',
+    offersInstallments: false,
+    maxInstallments: '',
     agreeToTerms: false
   });
 
@@ -187,6 +189,13 @@ function LabSignup() {
       newErrors.labTiming = 'Lab timing is required';
     }
 
+    // Installments validation
+    if (formData.offersInstallments) {
+      if (!formData.maxInstallments || formData.maxInstallments <= 0) {
+        newErrors.maxInstallments = 'Please specify the maximum number of installments';
+      }
+    }
+
     // Terms agreement validation
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
@@ -218,7 +227,9 @@ function LabSignup() {
         licenseNumber: formData.licenseNumber,
         labTiming: formData.labTiming,
         licenseFile: formData.licenseFile,
-        logoFile: formData.logoFile
+        logoFile: formData.logoFile,
+        offersInstallments: formData.offersInstallments,
+        maxInstallments: formData.offersInstallments ? Number(formData.maxInstallments) : 0
       });
 
       if (result.success) {
@@ -517,6 +528,49 @@ function LabSignup() {
                 <span className="form-error">{errors.labTiming}</span>
               )}
             </div>
+
+            {/* Installments Options */}
+            <div className="section-divider">
+              <h3 className="section-title">Payment Options</h3>
+            </div>
+
+            <div className="form-group">
+              <div className="terms-group" style={{ marginBottom: formData.offersInstallments ? '1rem' : '0' }}>
+                <input
+                  type="checkbox"
+                  id="offersInstallments"
+                  name="offersInstallments"
+                  checked={formData.offersInstallments}
+                  onChange={handleChange}
+                  className="terms-checkbox"
+                />
+                <label htmlFor="offersInstallments" className="terms-label" style={{ fontWeight: '500', color: '#1a1a1a' }}>
+                  Offer Installments for Lab Tests (on Total Bill)
+                </label>
+              </div>
+            </div>
+
+            {formData.offersInstallments && (
+              <div className="form-group" style={{ marginTop: '-0.5rem', marginBottom: '1.5rem', paddingLeft: '1.75rem' }}>
+                <label htmlFor="maxInstallments" className="form-label" style={{ fontSize: '0.85rem' }}>
+                  Maximum Installments Allowed
+                </label>
+                <input
+                  type="number"
+                  id="maxInstallments"
+                  name="maxInstallments"
+                  value={formData.maxInstallments}
+                  onChange={handleChange}
+                  className={`form-input ${errors.maxInstallments ? 'error' : ''}`}
+                  placeholder="e.g., 3"
+                  min="2"
+                  max="12"
+                />
+                {errors.maxInstallments && (
+                  <span className="form-error">{errors.maxInstallments}</span>
+                )}
+              </div>
+            )}
 
             {/* Terms and Conditions */}
             <div className="terms-group">

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+﻿import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useFirebase } from '../../../context/Firebase';
 import LabNavbar from '../../../components/Navbar/LabNavbar';
 import LabSidebar from '../../../components/Sidebar/lab/labSidebar';
 import Alert from '../../../components/Alert/Alert';
@@ -8,154 +9,149 @@ import './LabReports.css';
 
 function LabReports() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser, getLabReports, getLabBookings, uploadReportFile, saveLabReport, notifyReportShared } = useFirebase();
   const { alert, showSuccess, showError, closeAlert } = useAlert();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [selectedReport, setSelectedReport] = useState(null);
+
+  // Upload Modal State
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadStep, setUploadStep] = useState(1);
+  const [bookings, setBookings] = useState([]);
+  const [selectedBooking, setSelectedBooking] = useState('');
+  const [selectedTest, setSelectedTest] = useState('');
+  const [uploadFile, setUploadFile] = useState(null);
+  const [resultSummary, setResultSummary] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
   useEffect(() => {
-    fetchReports();
-  }, []);
+    if (currentUser?.uid) {
+      fetchReports();
+      fetchBookings();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (location.state?.preselectedBookingId && bookings.length > 0) {
+      setSelectedBooking(location.state.preselectedBookingId);
+      setShowUploadModal(true);
+      setUploadStep(1);
+    }
+  }, [location.state, bookings]);
+
+  useEffect(() => {
+    if (selectedBooking) {
+      const booking = bookings.find(b => b.id === selectedBooking || b.bookingId === selectedBooking);
+      if (booking && booking.testId) {
+        setSelectedTest(booking.testId);
+      }
+    }
+  }, [selectedBooking, bookings]);
 
   const fetchReports = async () => {
-    try {
-      // TODO: Replace with actual Firebase query
-      // Mock data for demo
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockReports = [
-        {
-          id: 'RPT001',
-          patientId: 'PAT12345',
-          patientName: 'John Doe',
-          patientEmail: 'john.doe@example.com',
-          testName: 'Complete Blood Count (CBC)',
-          testDate: '2024-12-05',
-          reportDate: '2024-12-06',
-          status: 'shared',
-          sharedOn: '2024-12-06',
-          reportUrl: '/reports/RPT001.pdf'
-        },
-        {
-          id: 'RPT002',
-          patientId: 'PAT67890',
-          patientName: 'Jane Smith',
-          patientEmail: 'jane.smith@example.com',
-          testName: 'Lipid Profile',
-          testDate: '2024-12-04',
-          reportDate: '2024-12-05',
-          status: 'pending',
-          sharedOn: null,
-          reportUrl: '/reports/RPT002.pdf'
-        },
-        {
-          id: 'RPT003',
-          patientId: 'PAT11223',
-          patientName: 'Robert Johnson',
-          patientEmail: 'robert.j@example.com',
-          testName: 'Thyroid Profile',
-          testDate: '2024-12-03',
-          reportDate: '2024-12-04',
-          status: 'shared',
-          sharedOn: '2024-12-04',
-          reportUrl: '/reports/RPT003.pdf'
-        },
-        {
-          id: 'RPT004',
-          patientId: 'PAT44556',
-          patientName: 'Emily Davis',
-          patientEmail: 'emily.davis@example.com',
-          testName: 'Liver Function Test',
-          testDate: '2024-12-02',
-          reportDate: '2024-12-03',
-          status: 'pending',
-          sharedOn: null,
-          reportUrl: '/reports/RPT004.pdf'
-        },
-        {
-          id: 'RPT005',
-          patientId: 'PAT78901',
-          patientName: 'Michael Brown',
-          patientEmail: 'michael.b@example.com',
-          testName: 'X-Ray Chest',
-          testDate: '2024-12-01',
-          reportDate: '2024-12-02',
-          status: 'shared',
-          sharedOn: '2024-12-02',
-          reportUrl: '/reports/RPT005.pdf'
-        }
-      ];
-      
-      setReports(mockReports);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      setLoading(false);
+    setLoading(true);
+    const result = await getLabReports(currentUser.uid);
+    if (result.success) {
+      setReports(result.data);
+    } else {
+      showError('Error', result.error || 'Failed to fetch reports');
+    }
+    setLoading(false);
+  };
+
+  const fetchBookings = async () => {
+    const result = await getLabBookings(currentUser.uid);
+    if (result.success) {
+      const eligible = result.bookings.filter(b => b.status === 'confirmed' || b.status === 'completed');
+      setBookings(eligible);
     }
   };
 
-  const handleShareReport = (report) => {
-    setSelectedReport(report);
-    setShowShareModal(true);
-  };
+  const currentBookingObj = bookings.find(b => b.id === selectedBooking || b.bookingId === selectedBooking);
 
-  const confirmShare = async () => {
+  const handleNextStep = () => setUploadStep(prev => prev + 1);
+  const handlePrevStep = () => setUploadStep(prev => prev - 1);
+
+  const handleConfirmUpload = async () => {
+    if (!currentBookingObj || !selectedTest || !uploadFile) return;
+    setIsUploading(true);
+
     try {
-      // TODO: Implement Firebase logic to share report
-      /*
-      import { getDatabase, ref, update } from 'firebase/database';
-      const db = getDatabase();
+      const uploadResult = await uploadReportFile(uploadFile);
+      if (!uploadResult.success) throw new Error(uploadResult.error || 'Upload failed');
+
+      const patientInfo = currentBookingObj.patientInfo || {};
+      const patientName = patientInfo.fullName || currentBookingObj.patientNameSnapshot || 'N/A';
       
-      await update(ref(db, `reports/${selectedReport.id}`), {
-        status: 'shared',
-        sharedOn: new Date().toISOString()
+      const reportData = {
+        bookingId: currentBookingObj.id || currentBookingObj.bookingId,
+        labId: currentUser.uid,
+        labName: currentUser.displayName || 'Lab',
+        patientProfileId: currentBookingObj.patientProfileId || currentBookingObj.patientInfo?.profileId || currentBookingObj.patientId,
+        patientName: patientName,
+        testId: selectedTest,
+        testName: currentBookingObj.testName || 'Unknown Test',
+        testType: currentBookingObj.testType || currentBookingObj.bookingType || 'Lab Test',
+        testDate: currentBookingObj.testDate || '',
+        testTime: currentBookingObj.testTime || '',
+        fileUrl: uploadResult.url,
+        resultSummary: resultSummary,
+        issuedDate: Date.now()
+      };
+
+      const saveResult = await saveLabReport(reportData);
+      if (!saveResult.success) throw new Error(saveResult.error || 'Failed to save report');
+
+      await notifyReportShared(currentBookingObj.accountHolderId, currentUser.uid, {
+        ...reportData,
+        reportId: saveResult.reportId
       });
-      
-      // Send notification/email to patient
-      */
 
-      setReports(reports.map(report => 
-        report.id === selectedReport.id 
-          ? { ...report, status: 'shared', sharedOn: new Date().toISOString().split('T')[0] }
-          : report
-      ));
-      
-      setShowShareModal(false);
-      setSelectedReport(null);
-      showSuccess('Success!', 'Report shared successfully with patient!');
+      showSuccess('Success', 'Report uploaded and shared successfully!');
+      setShowUploadModal(false);
+      resetModalState();
+      fetchReports();
     } catch (error) {
-      console.error('Error sharing report:', error);
-      showError('Error!', 'Failed to share report. Please try again.');
+      showError('Upload Error', error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  const handleViewReport = (reportUrl) => {
-    // Open report in new tab
-    window.open(reportUrl, '_blank');
+  const resetModalState = () => {
+    setUploadStep(1);
+    setSelectedBooking(location.state?.preselectedBookingId || '');
+    setSelectedTest('');
+    setUploadFile(null);
+    setResultSummary('');
+  };
+
+  const handleOpenUploadModal = () => {
+    resetModalState();
+    setShowUploadModal(true);
   };
 
   const filteredReports = reports.filter(report => {
+    const term = searchTerm.toLowerCase();
     const matchesSearch = 
-      report.patientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.testName.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = filterStatus === 'all' || report.status === filterStatus;
-    
+      (report.patientName && report.patientName.toLowerCase().includes(term)) ||
+      (report.testName && report.testName.toLowerCase().includes(term)) ||
+      (report.id && report.id.toLowerCase().includes(term));
+    const matchesStatus = filterStatus === 'all' || (filterStatus === 'shared' ? report.fileUrl : !report.fileUrl);
     return matchesSearch && matchesStatus;
   });
 
   const stats = {
     total: reports.length,
-    shared: reports.filter(r => r.status === 'shared').length,
-    pending: reports.filter(r => r.status === 'pending').length
+    shared: reports.filter(r => r.fileUrl).length,
+    pending: reports.filter(r => !r.fileUrl).length
   };
 
   if (loading) {
@@ -166,9 +162,7 @@ function LabReports() {
           <LabNavbar toggleSidebar={toggleSidebar} />
           <main className="flex-grow-1 overflow-y-auto">
             <div className="w-100 p-4 d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
+              <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div>
             </div>
           </main>
         </div>
@@ -183,22 +177,22 @@ function LabReports() {
         <LabNavbar toggleSidebar={toggleSidebar} />
         <main className="flex-grow-1 overflow-y-auto">
           <div className="w-100 p-4 lab-reports-page">
-            {/* Header */}
-            <div className="page-header mb-4">
-              <h2 className="page-title mb-2">
-                <i className="bi bi-file-earmark-medical me-2 text-primary"></i>
-                Patient Reports
-              </h2>
-              <p className="page-subtitle text-muted">Manage and share test reports with patients</p>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h2 className="page-title mb-2">
+                  <i className="bi bi-file-earmark-medical me-2 text-primary"></i>Patient Reports
+                </h2>
+                <p className="page-subtitle text-muted">Manage and share test reports with patients</p>
+              </div>
+              <button className="btn btn-primary" onClick={handleOpenUploadModal}>
+                <i className="bi bi-upload me-2"></i>Upload Report
+              </button>
             </div>
 
-            {/* Stats Cards */}
             <div className="row g-3 mb-4">
               <div className="col-md-4">
                 <div className="stat-card">
-                  <div className="stat-icon bg-primary">
-                    <i className="bi bi-file-earmark-text"></i>
-                  </div>
+                  <div className="stat-icon bg-primary"><i className="bi bi-file-earmark-text"></i></div>
                   <div className="stat-details">
                     <div className="stat-label">Total Reports</div>
                     <div className="stat-value">{stats.total}</div>
@@ -207,9 +201,7 @@ function LabReports() {
               </div>
               <div className="col-md-4">
                 <div className="stat-card">
-                  <div className="stat-icon bg-success">
-                    <i className="bi bi-check-circle"></i>
-                  </div>
+                  <div className="stat-icon bg-success"><i className="bi bi-check-circle"></i></div>
                   <div className="stat-details">
                     <div className="stat-label">Shared</div>
                     <div className="stat-value">{stats.shared}</div>
@@ -218,9 +210,7 @@ function LabReports() {
               </div>
               <div className="col-md-4">
                 <div className="stat-card">
-                  <div className="stat-icon bg-warning">
-                    <i className="bi bi-clock-history"></i>
-                  </div>
+                  <div className="stat-icon bg-warning"><i className="bi bi-clock-history"></i></div>
                   <div className="stat-details">
                     <div className="stat-label">Pending</div>
                     <div className="stat-value">{stats.pending}</div>
@@ -229,32 +219,19 @@ function LabReports() {
               </div>
             </div>
 
-            {/* Filters */}
             <div className="card shadow-sm mb-4">
               <div className="card-body">
                 <div className="row g-3 align-items-end">
                   <div className="col-md-6">
                     <label className="form-label fw-semibold">Search Reports</label>
                     <div className="input-group">
-                      <span className="input-group-text">
-                        <i className="bi bi-search"></i>
-                      </span>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Search by Patient ID, Name, or Test..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
+                      <span className="input-group-text"><i className="bi bi-search"></i></span>
+                      <input type="text" className="form-control" placeholder="Search by Patient Name or Test..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                     </div>
                   </div>
                   <div className="col-md-3">
                     <label className="form-label fw-semibold">Filter by Status</label>
-                    <select
-                      className="form-select"
-                      value={filterStatus}
-                      onChange={(e) => setFilterStatus(e.target.value)}
-                    >
+                    <select className="form-select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                       <option value="all">All Reports</option>
                       <option value="shared">Shared</option>
                       <option value="pending">Pending</option>
@@ -270,24 +247,15 @@ function LabReports() {
               </div>
             </div>
 
-            {/* Reports Table */}
             <div className="card shadow-sm">
-              <div className="card-header bg-white">
-                <h5 className="mb-0">
-                  <i className="bi bi-list-ul me-2"></i>
-                  Reports List ({filteredReports.length})
-                </h5>
-              </div>
               <div className="table-responsive">
                 <table className="table table-hover mb-0">
                   <thead>
                     <tr>
                       <th>Report ID</th>
-                      <th>Patient ID</th>
-                      <th>Patient Details</th>
-                      <th>Test Name</th>
-                      <th>Test Date</th>
-                      <th>Report Date</th>
+                      <th>Patient</th>
+                      <th>Test</th>
+                      <th>Date Uploaded</th>
                       <th>Status</th>
                       <th>Actions</th>
                     </tr>
@@ -296,68 +264,34 @@ function LabReports() {
                     {filteredReports.length > 0 ? (
                       filteredReports.map((report) => (
                         <tr key={report.id}>
-                          <td>
-                            <span className="badge bg-secondary">{report.id}</span>
-                          </td>
-                          <td>
-                            <span className="badge bg-info">{report.patientId}</span>
-                          </td>
-                          <td>
-                            <div className="cell-with-subtitle">
-                              <span className="cell-main fw-semibold">{report.patientName}</span>
-                              <span className="cell-sub text-muted">{report.patientEmail}</span>
-                            </div>
-                          </td>
+                          <td><span className="badge bg-secondary">{report.id}</span></td>
+                          <td><span className="fw-semibold">{report.patientName}</span></td>
                           <td>{report.testName}</td>
-                          <td>{new Date(report.testDate).toLocaleDateString()}</td>
-                          <td>{new Date(report.reportDate).toLocaleDateString()}</td>
+                          <td>{new Date(report.issuedDate).toLocaleDateString()}</td>
                           <td>
-                            {report.status === 'shared' ? (
-                              <span className="badge bg-success">
-                                <i className="bi bi-check-circle me-1"></i>
-                                Shared
-                              </span>
+                            {report.fileUrl ? (
+                              <span className="badge bg-success"><i className="bi bi-check-circle me-1"></i>Shared</span>
                             ) : (
-                              <span className="badge bg-warning">
-                                <i className="bi bi-clock me-1"></i>
-                                Pending
-                              </span>
+                              <span className="badge bg-warning"><i className="bi bi-clock me-1"></i>Pending</span>
                             )}
                           </td>
                           <td>
-                            <div className="action-buttons">
-                              <button
-                                className="btn btn-sm btn-outline-primary me-2"
-                                onClick={() => handleViewReport(report.reportUrl)}
-                                title="View Report"
-                              >
-                                <i className="bi bi-eye"></i>
-                              </button>
-                              {report.status === 'pending' && (
-                                <button
-                                  className="btn btn-sm btn-success"
-                                  onClick={() => handleShareReport(report)}
-                                  title="Share with Patient"
-                                >
-                                  <i className="bi bi-share"></i> Share
+                            {report.fileUrl ? (
+                              <div>
+                                <button className="btn btn-sm btn-outline-primary me-2" onClick={() => window.open(report.fileUrl, '_blank')} title="View Report">
+                                  <i className="bi bi-eye"></i> View
                                 </button>
-                              )}
-                              {report.status === 'shared' && (
-                                <span className="text-success small">
-                                  <i className="bi bi-check-circle-fill me-1"></i>
-                                  Shared on {new Date(report.sharedOn).toLocaleDateString()}
-                                </span>
-                              )}
-                            </div>
+                                <span className="text-success small"><i className="bi bi-check-circle-fill me-1"></i>Shared on {new Date(report.issuedDate).toLocaleDateString()}</span>
+                              </div>
+                            ) : (
+                              <button className="btn btn-sm btn-success" onClick={() => { setSelectedBooking(report.bookingId); setShowUploadModal(true); }}><i className="bi bi-upload"></i> Upload</button>
+                            )}
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="8" className="text-center py-4">
-                          <i className="bi bi-inbox display-4 text-muted d-block mb-2"></i>
-                          <p className="text-muted">No reports found matching your criteria</p>
-                        </td>
+                        <td colSpan="6" className="text-center py-4"><i className="bi bi-inbox display-4 text-muted d-block mb-2"></i><p className="text-muted">No reports found.</p></td>
                       </tr>
                     )}
                   </tbody>
@@ -368,84 +302,78 @@ function LabReports() {
         </main>
       </div>
 
-      {/* Share Report Modal */}
-      {showShareModal && (
+      {showUploadModal && (
         <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="bi bi-share me-2"></i>
-                  Share Report with Patient
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowShareModal(false)}
-                ></button>
+                <h5 className="modal-title"><i className="bi bi-upload me-2"></i> Upload Lab Report</h5>
+                <button type="button" className="btn-close" onClick={() => setShowUploadModal(false)} disabled={isUploading}></button>
               </div>
               <div className="modal-body">
-                {selectedReport && (
+                {uploadStep === 1 && (
                   <div>
-                    <div className="alert alert-info">
-                      <i className="bi bi-info-circle me-2"></i>
-                      This report will be shared with the patient and they will receive a notification.
-                    </div>
-                    
-                    <div className="report-details">
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">Report ID:</label>
-                        <p className="mb-0">{selectedReport.id}</p>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">Patient ID:</label>
-                        <p className="mb-0">{selectedReport.patientId}</p>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">Patient Name:</label>
-                        <p className="mb-0">{selectedReport.patientName}</p>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">Patient Email:</label>
-                        <p className="mb-0">{selectedReport.patientEmail}</p>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label fw-semibold">Test Name:</label>
-                        <p className="mb-0">{selectedReport.testName}</p>
-                      </div>
-                    </div>
+                    <h6>Step 1: Select Booking</h6>
+                    <select className="form-select" value={selectedBooking} onChange={(e) => setSelectedBooking(e.target.value)}>
+                      <option value="">-- Select a Booking --</option>
+                      {bookings.map(b => (
+                        <option key={b.id || b.bookingId} value={b.id || b.bookingId}>
+                          Booking: {b.id || b.bookingId} - {b.patientInfo?.fullName || b.patientNameSnapshot} ({b.testDate||'N/A'})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {uploadStep === 2 && (
+                  <div>
+                    <h6>Step 2: Select Test</h6>
+                    <select className="form-select" value={selectedTest} onChange={(e) => setSelectedTest(e.target.value)}>
+                      <option value="">-- Select a Test --</option>
+                      {currentBookingObj?.testId && (
+                        <option value={currentBookingObj.testId}>{currentBookingObj.testName || currentBookingObj.testId}</option>
+                      )}
+                    </select>
+                    {(!currentBookingObj?.testId) && <p className="text-muted mt-2">No tests available for this booking.</p>}
+                  </div>
+                )}
+                {uploadStep === 3 && (
+                  <div>
+                    <h6>Step 3: Upload File</h6>
+                    <input type="file" className="form-control" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setUploadFile(e.target.files[0])} />
+                  </div>
+                )}
+                {uploadStep === 4 && (
+                  <div>
+                    <h6>Step 4: Summary & Confirm</h6>
+                    <p className="mb-1"><strong>Patient:</strong> {currentBookingObj?.patientInfo?.fullName || currentBookingObj?.patientNameSnapshot}</p>
+                    <p className="mb-1"><strong>Test:</strong> {currentBookingObj?.testName}</p>
+                    <p className="mb-3"><strong>File:</strong> {uploadFile?.name}</p>
+                    <label className="form-label">Result Summary (Optional)</label>
+                    <textarea className="form-control" rows="3" value={resultSummary} onChange={(e) => setResultSummary(e.target.value)}></textarea>
+                    {isUploading && (
+                      <div className="alert alert-info mt-3"><i className="bi bi-clock me-2"></i>Uploading report... please wait.</div>
+                    )}
                   </div>
                 )}
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowShareModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  onClick={confirmShare}
-                >
-                  <i className="bi bi-share me-2"></i>
-                  Confirm & Share
-                </button>
+                {uploadStep > 1 && !isUploading && (
+                  <button type="button" className="btn btn-secondary me-auto" onClick={handlePrevStep}>Back</button>
+                )}
+                {uploadStep < 4 ? (
+                  <button type="button" className="btn btn-primary" onClick={handleNextStep} disabled={(uploadStep === 1 && !selectedBooking) || (uploadStep === 2 && !selectedTest) || (uploadStep === 3 && !uploadFile)}>Next</button>
+                ) : (
+                  <button type="button" className="btn btn-success" onClick={handleConfirmUpload} disabled={isUploading}>
+                    {isUploading ? 'Uploading...' : 'Confirm & Upload'}
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <Alert
-        type={alert.type}
-        title={alert.title}
-        message={alert.message}
-        isOpen={alert.isOpen}
-        onClose={closeAlert}
-      />
+      <Alert type={alert.type} title={alert.title} message={alert.message} isOpen={alert.isOpen} onClose={closeAlert} />
     </div>
   );
 }

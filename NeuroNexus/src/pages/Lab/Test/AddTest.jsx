@@ -18,9 +18,7 @@ function AddTest() {
     testName: '',
     category: '',
     description: '',
-    price: '',
-    installments: 'no',
-    noOfInstallments: ''
+    price: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -70,12 +68,6 @@ function AddTest() {
       newErrors.price = 'Price is required';
     } else if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
       newErrors.price = 'Please enter a valid price';
-    }
-
-    if (formData.installments === 'yes' && !formData.noOfInstallments) {
-      newErrors.noOfInstallments = 'Please specify number of installments';
-    } else if (formData.installments === 'yes' && (isNaN(formData.noOfInstallments) || parseInt(formData.noOfInstallments) <= 0)) {
-      newErrors.noOfInstallments = 'Please enter a valid number';
     }
 
     setErrors(newErrors);
@@ -235,46 +227,6 @@ function AddTest() {
                             <div className="invalid-feedback">{errors.price}</div>
                           )}
                         </div>
-
-                        {/* Installments */}
-                        <div className="col-md-6">
-                          <label htmlFor="installments" className="form-label">
-                            Installments Available
-                          </label>
-                          <select
-                            className="form-select"
-                            id="installments"
-                            name="installments"
-                            value={formData.installments}
-                            onChange={handleChange}
-                          >
-                            <option value="no">No</option>
-                            <option value="yes">Yes</option>
-                          </select>
-                        </div>
-
-                        {/* Installment Count (conditional) */}
-                        {formData.installments === 'yes' && (
-                          <div className="col-md-6">
-                            <label htmlFor="noOfInstallments" className="form-label">
-                              Number of Installments <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              className={`form-control ${errors.noOfInstallments ? 'is-invalid' : ''}`}
-                              id="noOfInstallments"
-                              name="noOfInstallments"
-                              value={formData.noOfInstallments}
-                              onChange={handleChange}
-                              placeholder="Enter number of installments"
-                              min="2"
-                              max="12"
-                            />
-                            {errors.noOfInstallments && (
-                              <div className="invalid-feedback">{errors.noOfInstallments}</div>
-                            )}
-                          </div>
-                        )}
 
                         {/* Submit Error */}
                         {errors.submit && (

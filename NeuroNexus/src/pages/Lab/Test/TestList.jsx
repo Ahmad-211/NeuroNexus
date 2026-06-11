@@ -148,14 +148,13 @@ function TestList() {
                             <th className="px-4 py-3">Test Name</th>
                             <th className="py-3">Category</th>
                             <th className="py-3">Price (₹)</th>
-                            <th className="py-3">Installments</th>
                             <th className="py-3 text-center">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {isLoading ? (
                             <tr>
-                              <td colSpan="5" className="text-center py-5">
+                              <td colSpan="4" className="text-center py-5">
                                 <div className="spinner-border text-primary" role="status">
                                   <span className="visually-hidden">Loading...</span>
                                 </div>
@@ -184,19 +183,6 @@ function TestList() {
                                 <td className="py-3">
                                   <span className="fw-semibold">₹{test.price}</span>
                                 </td>
-                                <td className="py-3">
-                                  {test.installments === 'yes' ? (
-                                    <span className="badge bg-success-subtle text-success">
-                                      <i className="bi bi-check-circle me-1"></i>
-                                      Yes ({test.noOfInstallments})
-                                    </span>
-                                  ) : (
-                                    <span className="badge bg-secondary-subtle text-secondary">
-                                      <i className="bi bi-x-circle me-1"></i>
-                                      No
-                                    </span>
-                                  )}
-                                </td>
                                 <td className="py-3 text-center">
                                   <button
                                     className="btn btn-sm btn-outline-primary me-2"
@@ -215,7 +201,7 @@ function TestList() {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan="5" className="text-center py-5">
+                              <td colSpan="4" className="text-center py-5">
                                 <div className="text-muted">
                                   <i className="bi bi-search fs-1 d-block mb-3"></i>
                                   <p className="mb-0">No tests found matching your search</p>
