@@ -192,10 +192,10 @@ function AdminProfile() {
   return (
     <div className="d-flex vh-100">
       <Sidebar isOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} />
-      <div className="flex-grow-1 d-flex flex-column">
+      <div className="flex-grow-1 d-flex flex-column overflow-hidden">
         <Navbar toggleSidebar={toggleSidebar} pageTitle="Admin Profile" />
         <main className="flex-grow-1 overflow-y-auto">
-          <div className="w-100 p-4 profile-page">
+          <div className="container-fluid p-4 profile-page">
             <div className="page-header mb-4">
               <div>
                 <h2 className="page-title mb-2">

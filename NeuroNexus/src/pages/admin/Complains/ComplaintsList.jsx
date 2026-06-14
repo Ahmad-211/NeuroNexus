@@ -153,45 +153,45 @@ function ComplaintsList() {
             <div className="row g-3 mb-4">
               <div className="col-xl-3 col-md-6">
                 <div className="stat-card stat-card-total">
-                  <div className="stat-icon">
-                    <i className="bi bi-clipboard-data"></i>
-                  </div>
                   <div className="stat-content">
                     <div className="stat-label">Total Complaints</div>
                     <div className="stat-value">{stats.total}</div>
+                  </div>
+                  <div className="stat-icon">
+                    <i className="bi bi-clipboard-data"></i>
                   </div>
                 </div>
               </div>
               <div className="col-xl-3 col-md-6">
                 <div className="stat-card stat-card-pending">
-                  <div className="stat-icon">
-                    <i className="bi bi-clock-history"></i>
-                  </div>
                   <div className="stat-content">
                     <div className="stat-label">Pending</div>
                     <div className="stat-value">{stats.pending}</div>
+                  </div>
+                  <div className="stat-icon">
+                    <i className="bi bi-clock-history"></i>
                   </div>
                 </div>
               </div>
               <div className="col-xl-3 col-md-6">
                 <div className="stat-card stat-card-resolved">
-                  <div className="stat-icon">
-                    <i className="bi bi-check-circle"></i>
-                  </div>
                   <div className="stat-content">
                     <div className="stat-label">Resolved</div>
                     <div className="stat-value">{stats.resolved}</div>
+                  </div>
+                  <div className="stat-icon">
+                    <i className="bi bi-check-circle"></i>
                   </div>
                 </div>
               </div>
               <div className="col-xl-3 col-md-6">
                 <div className="stat-card stat-card-rejected">
-                  <div className="stat-icon">
-                    <i className="bi bi-x-circle"></i>
-                  </div>
                   <div className="stat-content">
                     <div className="stat-label">Rejected</div>
                     <div className="stat-value">{stats.rejected}</div>
+                  </div>
+                  <div className="stat-icon">
+                    <i className="bi bi-x-circle"></i>
                   </div>
                 </div>
               </div>

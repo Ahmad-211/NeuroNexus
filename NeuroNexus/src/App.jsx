@@ -25,7 +25,7 @@ import ManageCategories from './pages/admin/Doctors/ManageCategories'
 import AllPatients from './pages/admin/Patients/AllPatients'
 import AllBookings from './pages/admin/Bookings/AllBookings'
 import AllPayments from './pages/admin/Payments/AllPayments'
-import PaymentDetails from './pages/admin/Payments/PaymentDetails'
+
 import ComplaintsList from './pages/admin/Complains/ComplaintsList'
 import ComplaintDetails from './pages/admin/Complains/ComplaintDetails'
 import Notifications from './pages/admin/Notifications/Notifications'
@@ -75,7 +75,6 @@ function App() {
         <Route path="/patients" element={<AdminProtectedRoute><AllPatients /></AdminProtectedRoute>} />
         <Route path="/bookings" element={<AdminProtectedRoute><AllBookings /></AdminProtectedRoute>} />
         <Route path="/payments" element={<AdminProtectedRoute><AllPayments /></AdminProtectedRoute>} />
-        <Route path="/payments/:id" element={<AdminProtectedRoute><PaymentDetails /></AdminProtectedRoute>} />
         <Route path="/complaints" element={<AdminProtectedRoute><ComplaintsList /></AdminProtectedRoute>} />
         <Route path="/complaints/:id" element={<AdminProtectedRoute><ComplaintDetails /></AdminProtectedRoute>} />
         <Route path="/notifications" element={<AdminProtectedRoute><Notifications /></AdminProtectedRoute>} />

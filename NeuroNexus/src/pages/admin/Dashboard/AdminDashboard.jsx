@@ -6,7 +6,7 @@ import LabAppealAlerts from './LabAppealAlerts';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
-  const { getAllLabs, getAllDoctors, getAllComplaints, getAllPatients, getAllBookings, getRecentActivities } = useFirebase();
+  const { getAllLabs, getAllDoctors, getAllComplaints, getAllPatients, getAllBookings, getRecentActivities, getAllPayments } = useFirebase();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [activities, setActivities] = useState([]);
@@ -19,7 +19,10 @@ function AdminDashboard() {
     totalPatients: 0,
     activePatients: 0,
     totalBookings: 0,
-    completedBookings: 0
+    completedBookings: 0,
+    totalPayments: 0,
+    paidPayments: 0,
+    totalRevenue: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -64,6 +67,13 @@ function AdminDashboard() {
       const totalBookings = bookings.length;
       const completedBookings = bookings.filter(booking => booking.status === 'completed').length;
 
+      // Fetch all payments
+      const paymentsResult = await getAllPayments();
+      const payments = paymentsResult.success ? paymentsResult.payments : [];
+      const totalPayments = payments.length;
+      const paidPayments = payments.filter(p => p.status === 'paid').length;
+      const totalRevenue = payments.filter(p => p.status === 'paid').reduce((s, p) => s + (p.isInstallment ? p.paidAmount : p.amount), 0);
+
       setStats({
         totalLabs,
         pendingLabApprovals,
@@ -73,7 +83,10 @@ function AdminDashboard() {
         totalPatients,
         activePatients,
         totalBookings,
-        completedBookings
+        completedBookings,
+        totalPayments,
+        paidPayments,
+        totalRevenue
       });
 
       setLoading(false);
@@ -136,64 +149,64 @@ function AdminDashboard() {
             {/* Stats Cards Row 1 */}
             <div className="row g-3 mb-4">
               {/* Total Labs */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Labs</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalLabs}</h3>
                       <small className="text-muted">Registered labs</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-buildings-fill" style={{fontSize: '28px', color: '#3b82f6'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe'}}>
+                      <i className="bi bi-buildings-fill" style={{color: '#3b82f6'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Pending Lab Approvals */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Pending Approvals</p>
                       <h3 className="mb-0 fw-bold text-warning">{loading ? '...' : stats.pendingLabApprovals}</h3>
                       <small className="text-danger">{stats.pendingLabApprovals > 0 ? <><i className="bi bi-exclamation-circle"></i> Needs action</> : 'No pending labs'}</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-hourglass-split" style={{fontSize: '28px', color: '#f59e0b'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7'}}>
+                      <i className="bi bi-hourglass-split" style={{color: '#f59e0b'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Total Doctors */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Doctors</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalDoctors}</h3>
                       <small className="text-muted">Registered doctors</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-heart-pulse-fill" style={{fontSize: '28px', color: '#10b981'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF'}}>
+                      <i className="bi bi-heart-pulse-fill" style={{color: '#10b981'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Pending Doctor Approvals */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Doctor Approvals</p>
                       <h3 className="mb-0 fw-bold text-danger">{loading ? '...' : stats.pendingDoctorApprovals}</h3>
                       <small className="text-danger">{stats.pendingDoctorApprovals > 0 ? <><i className="bi bi-exclamation-circle"></i> Pending review</> : 'No pending doctors'}</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fee2e2', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-clock-history" style={{fontSize: '28px', color: '#ef4444'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fee2e2'}}>
+                      <i className="bi bi-clock-history" style={{color: '#ef4444'}}></i>
                     </div>
                   </div>
                 </div>
@@ -203,62 +216,62 @@ function AdminDashboard() {
             {/* Stats Cards Row 2 */}
             <div className="row g-3 mb-4">
               {/* Total Patients */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Patients</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalPatients}</h3>
 
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-people-fill" style={{fontSize: '28px', color: '#3b82f6'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe'}}>
+                      <i className="bi bi-people-fill" style={{color: '#3b82f6'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Active Patients */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Active Patients</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.activePatients}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-person-check-fill" style={{fontSize: '28px', color: '#3b82f6'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe'}}>
+                      <i className="bi bi-person-check-fill" style={{color: '#3b82f6'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Total Bookings */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Bookings</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalBookings}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-calendar-check-fill" style={{fontSize: '28px', color: '#6366f1'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff'}}>
+                      <i className="bi bi-calendar-check-fill" style={{color: '#6366f1'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Completed Bookings */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Completed</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.completedBookings}</h3>
 
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-check-circle-fill" style={{fontSize: '28px', color: '#10b981'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF'}}>
+                      <i className="bi bi-check-circle-fill" style={{color: '#10b981'}}></i>
                     </div>
                   </div>
                 </div>
@@ -268,60 +281,60 @@ function AdminDashboard() {
             {/* Stats Cards Row 3 */}
             <div className="row g-3 mb-4">
               {/* Total Payments */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Payments</p>
-                      <h3 className="mb-0 fw-bold text-dark">342</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalPayments}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-cash-stack" style={{fontSize: '28px', color: '#059669'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3'}}>
+                      <i className="bi bi-cash-stack" style={{color: '#059669'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Paid Payments */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Paid</p>
-                      <h3 className="mb-0 fw-bold text-dark">328</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.paidPayments}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-currency-rupee" style={{fontSize: '28px', color: '#10b981'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF'}}>
+                      <i className="bi bi-currency-rupee" style={{color: '#10b981'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Total Revenue */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Revenue</p>
-                      <h3 className="mb-0 fw-bold text-dark">₹1.2M</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : `Rs${stats.totalRevenue.toLocaleString()}`}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-graph-up-arrow" style={{fontSize: '28px', color: '#059669'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3'}}>
+                      <i className="bi bi-graph-up-arrow" style={{color: '#059669'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Complaints */}
-              <div className="col-md-6 col-lg-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Complaints</p>
                       <h3 className="mb-0 fw-bold text-warning">{loading ? '...' : stats.totalComplaints}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-exclamation-triangle-fill" style={{fontSize: '28px', color: '#f59e0b'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7'}}>
+                      <i className="bi bi-exclamation-triangle-fill" style={{color: '#f59e0b'}}></i>
                     </div>
                   </div>
                 </div>

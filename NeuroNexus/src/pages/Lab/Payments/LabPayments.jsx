@@ -1,75 +1,81 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFirebase } from '../../../context/Firebase';
 import LabNavbar from '../../../components/Navbar/LabNavbar';
 import LabSidebar from '../../../components/Sidebar/lab/labSidebar';
 import './LabPayments.css';
 
 function LabPayments() {
+  const { getAllPayments, currentUser } = useFirebase();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample payments data
-  const allPayments = [
-    { id: 'TXN-001', patientName: 'Rajesh Kumar', testName: 'Complete Blood Count', amount: 500, method: 'UPI', date: '2025-11-30', status: 'paid' },
-    { id: 'TXN-002', patientName: 'Anjali Sharma', testName: 'X-Ray Chest', amount: 800, method: 'Card', date: '2025-11-30', status: 'paid' },
-    { id: 'TXN-003', patientName: 'Priya Gupta', testName: 'MRI Brain Scan', amount: 5000, method: 'Net Banking', date: '2025-11-29', status: 'paid' },
-    { id: 'TXN-004', patientName: 'Vikas Kumar', testName: 'ECG Test', amount: 350, method: 'Cash', date: '2025-11-29', status: 'pending' },
-    { id: 'TXN-005', patientName: 'Sanjay Mehta', testName: 'Ultrasound Abdomen', amount: 1200, method: 'UPI', date: '2025-11-28', status: 'paid' },
-    { id: 'TXN-006', patientName: 'Neha Patel', testName: 'CT Scan Chest', amount: 3500, method: 'Card', date: '2025-11-28', status: 'refunded' },
-    { id: 'TXN-007', patientName: 'Amit Singh', testName: 'Lipid Profile', amount: 600, method: 'UPI', date: '2025-11-27', status: 'paid' },
-    { id: 'TXN-008', patientName: 'Kavita Desai', testName: 'Thyroid Profile', amount: 450, method: 'Net Banking', date: '2025-11-27', status: 'pending' },
-    { id: 'TXN-009', patientName: 'Rohit Verma', testName: 'Liver Function Test', amount: 750, method: 'UPI', date: '2025-11-26', status: 'paid' },
-    { id: 'TXN-010', patientName: 'Pooja Jain', testName: 'Kidney Function Test', amount: 800, method: 'Card', date: '2025-11-26', status: 'paid' },
-  ];
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+  useEffect(() => {
+    const fetchPayments = async () => {
+      if (!currentUser) return;
+      setLoading(true);
+      const result = await getAllPayments(currentUser.uid);
+      if (result.success) {
+        setPayments(result.payments);
+      }
+      setLoading(false);
+    };
+    fetchPayments();
+  }, [currentUser]);
+
+  const formatCurrency = (amount, currency) => {
+    const symbol = currency === 'PKR' ? 'Rs' : '$';
+    return `${symbol}${Number(amount).toLocaleString()}`;
   };
 
-  const closeSidebar = () => {
-    setSidebarOpen(false);
+  const formatDate = (ts) => {
+    if (!ts) return 'N/A';
+    return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Calculate summary statistics
-  const totalEarnings = allPayments
-    .filter(p => p.status === 'paid')
-    .reduce((sum, p) => sum + p.amount, 0);
-  
-  const pendingPayments = allPayments
-    .filter(p => p.status === 'pending')
-    .reduce((sum, p) => sum + p.amount, 0);
-  
-  const completedPayments = allPayments.filter(p => p.status === 'paid').length;
-  
-  const refunds = allPayments
-    .filter(p => p.status === 'refunded')
-    .reduce((sum, p) => sum + p.amount, 0);
+  const totalEarnings = payments.filter(p => p.status === 'paid').reduce((s, p) => s + p.paidAmount, 0);
+  const pendingTotal = payments.filter(p => p.status === 'pending' || p.status === 'partial').reduce((s, p) => s + (p.isInstallment ? p.pendingAmount : p.amount), 0);
+  const completedPayments = payments.filter(p => p.status === 'paid').length;
+  const refunds = payments.filter(p => p.status === 'refunded').reduce((s, p) => s + p.amount, 0);
 
-  // Filter payments
-  const filteredPayments = allPayments
-    .filter(payment => {
-      const matchesSearch = 
-        payment.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        payment.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        payment.id.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesStatus = statusFilter === 'all' || payment.status === statusFilter;
-      const matchesMethod = paymentMethodFilter === 'all' || payment.method === paymentMethodFilter;
-      
-      return matchesSearch && matchesStatus && matchesMethod;
-    });
+  const filteredPayments = payments.filter(p => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q ||
+      p.patientName.toLowerCase().includes(q) ||
+      p.testName.toLowerCase().includes(q) ||
+      p.paymentId.toLowerCase().includes(q) ||
+      p.bookingId.toLowerCase().includes(q);
+    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusBadge = (status) => {
+    const map = { paid: 'bg-success', pending: 'bg-warning text-dark', partial: 'bg-info text-dark', refunded: 'bg-danger', failed: 'bg-danger' };
+    return map[status] || 'bg-secondary';
+  };
+
+  const getMethodIcon = (method) => {
+    const m = (method || '').toLowerCase();
+    if (m.includes('card')) return 'bi-credit-card';
+    if (m === 'upi') return 'bi-phone';
+    if (m.includes('net')) return 'bi-bank';
+    if (m === 'pay_at_clinic' || m === 'cash') return 'bi-cash';
+    if (m === 'online') return 'bi-globe2';
+    return 'bi-cash-coin';
+  };
 
   return (
     <div className="d-flex vh-100">
       <LabSidebar isOpen={sidebarOpen} closeSidebar={closeSidebar} />
-      
       <div className="flex-grow-1 d-flex flex-column overflow-hidden">
         <LabNavbar toggleSidebar={toggleSidebar} pageTitle="Payments" />
-        
         <div className="flex-grow-1 overflow-y-auto">
           <div className="container-fluid p-4">
-            {/* Page Header */}
             <div className="row mb-4">
               <div className="col-12">
                 <h2 className="mb-1 fw-bold">Payment Management</h2>
@@ -77,138 +83,93 @@ function LabPayments() {
               </div>
             </div>
 
-            {/* Summary Cards */}
-            <div className="row g-4 mb-4">
-              <div className="col-xl-3 col-md-6">
-                <div className="card border-0 shadow-sm stat-card">
-                  <div className="card-body">
-                    <div className="stat-icon bg-success">
-                      <i className="bi bi-cash-stack"></i>
+            <div className="row g-3 mb-4">
+              <div className="col-12 col-sm-6 col-xl-3">
+                <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <p className="text-muted mb-1 small">Total Earnings</p>
+                      <h4 className="mb-0 fw-bold text-success">{formatCurrency(totalEarnings, 'PKR')}</h4>
+                      <small className="text-success">{completedPayments} completed</small>
                     </div>
-                    <p className="text-muted mb-2 small">Total Earnings</p>
-                    <h3 className="fw-bold mb-0">₹{totalEarnings.toLocaleString()}</h3>
-                    <small className="text-success">
-                      <i className="bi bi-arrow-up me-1"></i>
-                      {completedPayments} completed
-                    </small>
+                    <div className="icon-bg bg-primary bg-opacity-10 rounded-circle p-3">
+                      <i className="bi bi-cash-stack text-success" style={{fontSize: '24px'}}></i>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-xl-3 col-md-6">
-                <div className="card border-0 shadow-sm stat-card">
-                  <div className="card-body">
-                    <div className="stat-icon bg-warning">
-                      <i className="bi bi-hourglass-split"></i>
+              <div className="col-12 col-sm-6 col-xl-3">
+                <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <p className="text-muted mb-1 small">Pending / Partial</p>
+                      <h4 className="mb-0 fw-bold text-warning">{formatCurrency(pendingTotal, 'PKR')}</h4>
+                      <small className="text-warning">{payments.filter(p => p.status === 'pending' || p.status === 'partial').length} awaiting</small>
                     </div>
-                    <p className="text-muted mb-2 small">Pending Payments</p>
-                    <h3 className="fw-bold mb-0">₹{pendingPayments.toLocaleString()}</h3>
-                    <small className="text-warning">
-                      <i className="bi bi-clock me-1"></i>
-                      {allPayments.filter(p => p.status === 'pending').length} awaiting
-                    </small>
+                    <div className="icon-bg bg-warning bg-opacity-10 rounded-circle p-3">
+                      <i className="bi bi-hourglass-split text-warning" style={{fontSize: '24px'}}></i>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-xl-3 col-md-6">
-                <div className="card border-0 shadow-sm stat-card">
-                  <div className="card-body">
-                    <div className="stat-icon bg-primary">
-                      <i className="bi bi-check-circle"></i>
+              <div className="col-12 col-sm-6 col-xl-3">
+                <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <p className="text-muted mb-1 small">Completed Payments</p>
+                      <h4 className="mb-0 fw-bold">{completedPayments}</h4>
+                      <small className="text-primary">Total transactions</small>
                     </div>
-                    <p className="text-muted mb-2 small">Completed Payments</p>
-                    <h3 className="fw-bold mb-0">{completedPayments}</h3>
-                    <small className="text-primary">
-                      <i className="bi bi-graph-up me-1"></i>
-                      This month
-                    </small>
+                    <div className="icon-bg bg-primary bg-opacity-10 rounded-circle p-3">
+                      <i className="bi bi-check-circle text-primary" style={{fontSize: '24px'}}></i>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-xl-3 col-md-6">
-                <div className="card border-0 shadow-sm stat-card">
-                  <div className="card-body">
-                    <div className="stat-icon bg-danger">
-                      <i className="bi bi-arrow-counterclockwise"></i>
+              <div className="col-12 col-sm-6 col-xl-3">
+                <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <p className="text-muted mb-1 small">Refunds</p>
+                      <h4 className="mb-0 fw-bold text-danger">{formatCurrency(refunds, 'PKR')}</h4>
+                      <small className="text-danger">{payments.filter(p => p.status === 'refunded').length} refunded</small>
                     </div>
-                    <p className="text-muted mb-2 small">Refunds</p>
-                    <h3 className="fw-bold mb-0">₹{refunds.toLocaleString()}</h3>
-                    <small className="text-danger">
-                      <i className="bi bi-dash-circle me-1"></i>
-                      {allPayments.filter(p => p.status === 'refunded').length} refunded
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Filters and Search */}
-            <div className="row mb-4">
-              <div className="col-12">
-                <div className="card border-0 shadow-sm">
-                  <div className="card-body p-3">
-                    <div className="row g-3 align-items-center">
-                      {/* Search */}
-                      <div className="col-lg-4 col-md-12">
-                        <div className="input-group">
-                          <span className="input-group-text bg-white border-end-0">
-                            <i className="bi bi-search"></i>
-                          </span>
-                          <input
-                            type="text"
-                            className="form-control border-start-0 ps-0"
-                            placeholder="Search by patient, test, or transaction ID..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Status Filter */}
-                      <div className="col-lg-3 col-md-6">
-                        <select
-                          className="form-select"
-                          value={statusFilter}
-                          onChange={(e) => setStatusFilter(e.target.value)}
-                        >
-                          <option value="all">All Status</option>
-                          <option value="paid">Paid</option>
-                          <option value="pending">Pending</option>
-                          <option value="refunded">Refunded</option>
-                        </select>
-                      </div>
-
-                      {/* Payment Method Filter */}
-                      <div className="col-lg-3 col-md-6">
-                        <select
-                          className="form-select"
-                          value={paymentMethodFilter}
-                          onChange={(e) => setPaymentMethodFilter(e.target.value)}
-                        >
-                          <option value="all">All Methods</option>
-                          <option value="UPI">UPI</option>
-                          <option value="Card">Card</option>
-                          <option value="Net Banking">Net Banking</option>
-                          <option value="Cash">Cash</option>
-                        </select>
-                      </div>
-
-                      {/* Export Button */}
-                      <div className="col-lg-2 col-md-12">
-                        <button className="btn btn-primary w-100">
-                          <i className="bi bi-download me-2"></i>
-                          Export
-                        </button>
-                      </div>
+                    <div className="icon-bg bg-danger bg-opacity-10 rounded-circle p-3">
+                      <i className="bi bi-arrow-counterclockwise text-danger" style={{fontSize: '24px'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Payments Table */}
+            <div className="card border-0 shadow-sm mb-4">
+              <div className="card-body">
+                <div className="row g-3 align-items-end">
+                  <div className="col-md-4">
+                    <div className="input-group">
+                      <span className="input-group-text bg-white border-end-0">
+                        <i className="bi bi-search"></i>
+                      </span>
+                      <input type="text" className="form-control border-start-0" placeholder="Search by payment ID, patient, or booking..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <label className="form-label small">Status</label>
+                    <select className="form-select" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                      <option value="all">All Status</option>
+                      <option value="paid">Paid</option>
+                      <option value="partial">Partial</option>
+                      <option value="pending">Pending</option>
+                      <option value="refunded">Refunded</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="row">
               <div className="col-12">
                 <div className="card border-0 shadow-sm">
@@ -219,77 +180,85 @@ function LabPayments() {
                           <tr>
                             <th className="px-4 py-3">Transaction ID</th>
                             <th className="py-3">Patient Name</th>
-                            <th className="py-3">Test Name</th>
-                            <th className="py-3">Amount (₹)</th>
-                            <th className="py-3">Payment Method</th>
+                            <th className="py-3">Test</th>
+                            <th className="py-3">Amount</th>
+                            <th className="py-3">Paid</th>
+                            <th className="py-3">Method</th>
                             <th className="py-3">Date</th>
+                            <th className="py-3">Installment</th>
                             <th className="py-3">Status</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredPayments.length > 0 ? (
-                            filteredPayments.map((payment) => (
-                              <tr key={payment.id}>
+                          {loading ? (
+                            <tr>
+                              <td colSpan="9" className="text-center py-5">
+                                <div className="spinner-border text-primary" role="status">
+                                  <span className="visually-hidden">Loading...</span>
+                                </div>
+                              </td>
+                            </tr>
+                          ) : filteredPayments.length > 0 ? (
+                            filteredPayments.map((p, i) => (
+                              <tr key={p.bookingId + p.paymentId + i}>
                                 <td className="px-4 py-3">
-                                  <span className="fw-semibold text-primary">{payment.id}</span>
+                                  <span className="fw-semibold text-primary">{p.paymentId}</span>
                                 </td>
                                 <td className="py-3">
                                   <div className="d-flex align-items-center">
                                     <div className="avatar-circle bg-primary text-white me-2">
-                                      {payment.patientName.split(' ').map(n => n[0]).join('')}
+                                      {p.patientName.split(' ').map(n => n[0]).join('')}
                                     </div>
-                                    <span className="fw-semibold">{payment.patientName}</span>
+                                    <span className="fw-semibold">{p.patientName}</span>
                                   </div>
                                 </td>
-                                <td className="py-3">{payment.testName}</td>
+                                <td className="py-3">{p.testName}</td>
                                 <td className="py-3">
-                                  <span className="fw-bold">₹{payment.amount}</span>
+                                  <span className="fw-bold">{formatCurrency(p.amount, p.currency)}</span>
+                                </td>
+                                <td className="py-3">
+                                  {p.isInstallment ? (
+                                    <span className="text-success fw-semibold">{formatCurrency(p.paidAmount, p.currency)}</span>
+                                  ) : (
+                                    <span className={p.status === 'paid' ? 'text-success' : 'text-muted'}>
+                                      {p.status === 'paid' ? formatCurrency(p.amount, p.currency) : '-'}
+                                    </span>
+                                  )}
                                 </td>
                                 <td className="py-3">
                                   <span className="payment-method-badge">
-                                    {payment.method === 'UPI' && <i className="bi bi-phone me-1"></i>}
-                                    {payment.method === 'Card' && <i className="bi bi-credit-card me-1"></i>}
-                                    {payment.method === 'Net Banking' && <i className="bi bi-bank me-1"></i>}
-                                    {payment.method === 'Cash' && <i className="bi bi-cash me-1"></i>}
-                                    {payment.method}
+                                    <i className={`bi ${getMethodIcon(p.paymentMethod)} me-1`}></i>
+                                    {p.paymentMethod === 'PAY_AT_CLINIC' ? 'Pay at Clinic' : p.paymentMethod === 'ONLINE' ? 'Online' : p.paymentMethod}
                                   </span>
                                 </td>
                                 <td className="py-3">
-                                  <div>
-                                    <div className="text-dark">
-                                      {new Date(payment.date).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        year: 'numeric'
-                                      })}
-                                    </div>
-                                  </div>
+                                  {formatDate(p.date)}
                                 </td>
                                 <td className="py-3">
-                                  {payment.status === 'paid' && (
-                                    <span className="badge bg-success">
-                                      <i className="bi bi-check-circle me-1"></i>
-                                      Paid
-                                    </span>
+                                  {p.isInstallment ? (
+                                    <div>
+                                      <span className="badge bg-info text-dark">
+                                        {p.installmentPlan.paidInstallments}/{p.installmentPlan.numInstallments}
+                                      </span>
+                                      <small className="text-muted d-block">
+                                        {formatCurrency(p.installmentPlan.installmentAmount, p.currency)} each
+                                      </small>
+                                    </div>
+                                  ) : (
+                                    <span className="text-muted">-</span>
                                   )}
-                                  {payment.status === 'pending' && (
-                                    <span className="badge bg-warning text-dark">
-                                      <i className="bi bi-hourglass-split me-1"></i>
-                                      Pending
-                                    </span>
-                                  )}
-                                  {payment.status === 'refunded' && (
-                                    <span className="badge bg-danger">
-                                      <i className="bi bi-arrow-counterclockwise me-1"></i>
-                                      Refunded
-                                    </span>
-                                  )}
+                                </td>
+                                <td className="py-3">
+                                  <span className={`badge ${getStatusBadge(p.status)}`}>
+                                    <i className={`bi ${p.status === 'paid' ? 'bi-check-circle' : p.status === 'partial' ? 'bi-hourglass-split' : p.status === 'pending' ? 'bi-clock' : 'bi-arrow-counterclockwise'} me-1`}></i>
+                                    {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                                  </span>
                                 </td>
                               </tr>
                             ))
                           ) : (
                             <tr>
-                              <td colSpan="7" className="text-center py-5">
+                              <td colSpan="9" className="text-center py-5">
                                 <div className="text-muted">
                                   <i className="bi bi-inbox fs-1 d-block mb-3"></i>
                                   <p className="mb-0">No payments found</p>

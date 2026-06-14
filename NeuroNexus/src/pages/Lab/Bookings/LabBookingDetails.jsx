@@ -124,6 +124,13 @@ function LabBookingDetails() {
   const displayId = booking.bookingId || booking.id;
   const patientName = patientInfo.fullName || booking.patientNameSnapshot || 'N/A';
 
+  // Handle tests array
+  const testsArray = booking.tests ? Object.values(booking.tests) : [];
+  const hasMultipleTests = testsArray.length > 0;
+  const totalPrice = hasMultipleTests
+    ? testsArray.reduce((sum, t) => sum + (t.price || 0), 0)
+    : (payment.amount || 0);
+
   return (
     <div className="d-flex vh-100">
       <LabSidebar isOpen={sidebarOpen} closeSidebar={closeSidebar} />
@@ -225,40 +232,73 @@ function LabBookingDetails() {
                       <i className="bi bi-file-medical me-2 text-primary"></i>
                       Test Information
                     </h5>
-                    {/* Bar 1: Test Name | Price */}
-                    <div className="booking-info-bar mb-3">
-                      <div className="booking-info-bar-item">
-                        <label className="text-muted small d-block">Test Name</label>
-                        <p className="fw-semibold mb-0 fs-5">{booking.testName || 'N/A'}</p>
-                      </div>
-                      <div className="booking-info-bar-divider"></div>
-                      <div className="booking-info-bar-item">
-                        <label className="text-muted small d-block">Price</label>
-                        <p className="fw-bold mb-0 fs-4 text-success">
-                          {payment.amount ? `PKR${payment.amount}` : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                    {/* Bar 2: Test Type | Test ID */}
-                    <div className="booking-info-bar">
-                      <div className="booking-info-bar-item">
-                        <label className="text-muted small d-block">Test Type</label>
-                        <p className="mb-0">
-                          <span className="badge bg-primary-subtle text-primary">
-                            {booking.testType || booking.bookingType || 'N/A'}
-                          </span>
-                        </p>
-                      </div>
-                      {booking.testId && (
-                        <>
+                    {hasMultipleTests ? (
+                      <>
+                        <div className="table-responsive">
+                          <table className="table table-sm mb-0">
+                            <thead className="table-light">
+                              <tr>
+                                <th className="py-2">#</th>
+                                <th className="py-2">Test Name</th>
+                                <th className="py-2">Type</th>
+                                <th className="py-2 text-end">Price</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {testsArray.map((t, i) => (
+                                <tr key={i}>
+                                  <td className="py-2">{i + 1}</td>
+                                  <td className="py-2 fw-semibold">{t.name || t.testName || 'Test'}</td>
+                                  <td className="py-2"><span className="badge bg-primary-subtle text-primary">{t.testType || 'N/A'}</span></td>
+                                  <td className="py-2 text-end fw-bold text-success">{t.price ? `PKR${t.price}` : '-'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                            <tfoot>
+                              <tr className="table-light">
+                                <td colSpan="3" className="py-2 fw-bold text-end">Total:</td>
+                                <td className="py-2 fw-bold text-end text-success fs-5">PKR{totalPrice}</td>
+                              </tr>
+                            </tfoot>
+                          </table>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="booking-info-bar mb-3">
+                          <div className="booking-info-bar-item">
+                            <label className="text-muted small d-block">Test Name</label>
+                            <p className="fw-semibold mb-0 fs-5">{booking.testName || 'N/A'}</p>
+                          </div>
                           <div className="booking-info-bar-divider"></div>
                           <div className="booking-info-bar-item">
-                            <label className="text-muted small d-block">Test ID</label>
-                            <p className="mb-0 text-secondary small">{booking.testId}</p>
+                            <label className="text-muted small d-block">Price</label>
+                            <p className="fw-bold mb-0 fs-4 text-success">
+                              {payment.amount ? `PKR${payment.amount}` : 'N/A'}
+                            </p>
                           </div>
-                        </>
-                      )}
-                    </div>
+                        </div>
+                        <div className="booking-info-bar">
+                          <div className="booking-info-bar-item">
+                            <label className="text-muted small d-block">Test Type</label>
+                            <p className="mb-0">
+                              <span className="badge bg-primary-subtle text-primary">
+                                {booking.testType || booking.bookingType || 'N/A'}
+                              </span>
+                            </p>
+                          </div>
+                          {booking.testId && (
+                            <>
+                              <div className="booking-info-bar-divider"></div>
+                              <div className="booking-info-bar-item">
+                                <label className="text-muted small d-block">Test ID</label>
+                                <p className="mb-0 text-secondary small">{booking.testId}</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -362,7 +402,7 @@ function LabBookingDetails() {
                     {payment.amount && (
                       <div>
                         <label className="text-muted small">Amount</label>
-                        <p className="fw-bold mb-0 text-success">{payment.currency || '₹'}{payment.amount}</p>
+                        <p className="fw-bold mb-0 text-success">{payment.currency || '₹'}{totalPrice || payment.amount}</p>
                       </div>
                     )}
                   </div>

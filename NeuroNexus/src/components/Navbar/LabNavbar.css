@@ -340,4 +340,63 @@
     height: 36px;
     font-size: 1rem;
   }
+
+  .lab-navbar-right {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .lab-navbar-container {
+    padding: 0 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .lab-navbar-left {
+    gap: 0.5rem;
+  }
+
+  .lab-navbar-right {
+    gap: 0.25rem;
+  }
+
+  .lab-navbar-brand {
+    gap: 0.5rem;
+  }
+
+  .lab-navbar-title {
+    font-size: 0.8125rem;
+  }
+
+  .lab-menu-toggle {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .lab-navbar-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .lab-navbar-logo img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .lab-navbar-icon-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .lab-profile-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .lab-profile-menu {
+    min-width: 180px;
+    right: 0;
+  }
 }

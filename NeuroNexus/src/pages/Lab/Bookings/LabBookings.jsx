@@ -138,7 +138,7 @@ function LabBookings() {
 
             {/* Stats Cards */}
             <div className="row g-3 mb-4">
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -146,12 +146,12 @@ function LabBookings() {
                       <h4 className="mb-0 fw-bold">{totalBookings}</h4>
                     </div>
                     <div className="icon-bg bg-primary bg-opacity-10 rounded-circle p-3">
-                      <i className="bi bi-calendar-check text-primary" style={{ fontSize: '24px' }}></i>
+                      <i className="bi bi-calendar-check text-primary"></i>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -159,12 +159,12 @@ function LabBookings() {
                       <h4 className="mb-0 fw-bold text-warning">{pendingBookings}</h4>
                     </div>
                     <div className="icon-bg bg-warning bg-opacity-10 rounded-circle p-3">
-                      <i className="bi bi-hourglass-split text-warning" style={{ fontSize: '24px' }}></i>
+                      <i className="bi bi-hourglass-split text-warning"></i>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -172,12 +172,12 @@ function LabBookings() {
                       <h4 className="mb-0 fw-bold text-success">{completedBookings}</h4>
                     </div>
                     <div className="icon-bg bg-primary bg-opacity-10 rounded-circle p-3">
-                      <i className="bi bi-check-circle text-success" style={{ fontSize: '24px' }}></i>
+                      <i className="bi bi-check-circle text-success"></i>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -185,7 +185,7 @@ function LabBookings() {
                       <h4 className="mb-0 fw-bold text-danger">{cancelledBookings}</h4>
                     </div>
                     <div className="icon-bg bg-danger bg-opacity-10 rounded-circle p-3">
-                      <i className="bi bi-x-circle text-danger" style={{ fontSize: '24px' }}></i>
+                      <i className="bi bi-x-circle text-danger"></i>
                     </div>
                   </div>
                 </div>

@@ -176,7 +176,7 @@ function AllBookings() {
 
             {/* Stats Cards */}
             <div className="row g-3 mb-4">
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -189,7 +189,7 @@ function AllBookings() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -202,7 +202,7 @@ function AllBookings() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -215,7 +215,7 @@ function AllBookings() {
                   </div>
                 </div>
               </div>
-              <div className="col-md-3">
+              <div className="col-12 col-sm-6 col-xl-3">
                 <div className="stat-card bg-white border-0 rounded-lg p-3 shadow-sm">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -285,11 +285,6 @@ function AllBookings() {
                       <option value="partial">Partial</option>
                       <option value="refunded">Refunded</option>
                     </select>
-                  </div>
-                  <div className="col-md-2">
-                    <button className="btn btn-outline-secondary w-100">
-                      <i className="bi bi-download me-2"></i>Export
-                    </button>
                   </div>
                 </div>
               </div>

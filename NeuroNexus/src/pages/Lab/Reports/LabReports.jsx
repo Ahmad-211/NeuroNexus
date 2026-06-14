@@ -216,29 +216,29 @@ function LabReports() {
             <div className="row g-3 mb-4">
               <div className="col-md-4">
                 <div className="stat-card">
-                  <div className="stat-icon bg-primary"><i className="bi bi-file-earmark-text"></i></div>
                   <div className="stat-details">
                     <div className="stat-label">Total Reports</div>
                     <div className="stat-value">{stats.total}</div>
                   </div>
+                  <div className="stat-icon bg-primary"><i className="bi bi-file-earmark-text"></i></div>
                 </div>
               </div>
               <div className="col-md-4">
                 <div className="stat-card">
-                  <div className="stat-icon bg-success"><i className="bi bi-check-circle"></i></div>
                   <div className="stat-details">
                     <div className="stat-label">Shared</div>
                     <div className="stat-value">{stats.shared}</div>
                   </div>
+                  <div className="stat-icon bg-success"><i className="bi bi-check-circle"></i></div>
                 </div>
               </div>
               <div className="col-md-4">
                 <div className="stat-card">
-                  <div className="stat-icon bg-warning"><i className="bi bi-clock-history"></i></div>
                   <div className="stat-details">
                     <div className="stat-label">Pending</div>
                     <div className="stat-value">{stats.pending}</div>
                   </div>
+                  <div className="stat-icon bg-warning"><i className="bi bi-clock-history"></i></div>
                 </div>
               </div>
             </div>

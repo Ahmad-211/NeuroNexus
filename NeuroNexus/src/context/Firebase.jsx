@@ -1792,6 +1792,128 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  const getAllPayments = async (labId = null) => {
+    try {
+      const [appointmentsSnap, plansSnap, recordsSnap] = await Promise.all([
+        get(ref(database, 'appointments')),
+        get(ref(database, 'installment_plans')),
+        get(ref(database, 'installment_records'))
+      ]);
+
+      const plans = plansSnap.exists() ? plansSnap.val() : {};
+      const records = recordsSnap.exists() ? recordsSnap.val() : {};
+
+      const payments = [];
+
+      if (!appointmentsSnap.exists()) {
+        return { success: true, payments: [] };
+      }
+
+      const allAppointments = appointmentsSnap.val();
+
+      Object.entries(allAppointments).forEach(([bookingId, booking]) => {
+        if (labId && booking.labId !== labId) return;
+
+        const pay = booking.payment || {};
+        const paymentId = pay.paymentId || `N/A`;
+        const amount = pay.amount || 0;
+        const currency = pay.currency || 'PKR';
+        const paymentMethod = pay.paymentMethod || 'N/A';
+        const paymentStatus = pay.paymentStatus || 'N/A';
+        const transactionDate = pay.transactionDate || 0;
+
+        const patientName = booking.patientNameSnapshot || booking.patientName || 'Unknown';
+
+        const bookingType = (booking.bookingType || '').toLowerCase();
+        const isDoctor = bookingType === 'doctor_appointment' || bookingType === 'doctor' || bookingType === 'doctor_consultation' ||
+          (!!(booking.doctorName || booking.selectedDoctor || booking.doctorId) && !booking.labName && !booking.labId);
+
+        let testDisplay = 'N/A';
+        if (booking.tests) {
+          const testArr = Object.values(booking.tests);
+          testDisplay = testArr.map(t => t.name || t.testName || 'Test').join(', ');
+        } else if (booking.testName) {
+          testDisplay = booking.testName;
+        } else if (booking.reasonForVisit || booking.reason) {
+          testDisplay = booking.reasonForVisit || booking.reason;
+        }
+
+        const assignedTo = isDoctor
+          ? (booking.doctorName || booking.selectedDoctor || 'N/A')
+          : (booking.labName || 'N/A');
+
+        let installmentPlan = null;
+        let installmentRecords = [];
+
+        Object.values(plans).forEach(plan => {
+          if (plan && plan.bookingId === bookingId) {
+            installmentPlan = plan;
+            Object.values(records).forEach(rec => {
+              if (rec && rec.planId === plan.planId) {
+                installmentRecords.push(rec);
+              }
+            });
+          }
+        });
+
+        const isInstallment = !!installmentPlan;
+        const numInstallments = installmentPlan ? installmentPlan.numInstallments : 0;
+        const paidInstallments = installmentRecords.filter(r => r.status === 'paid').length;
+        const totalPaid = installmentRecords.filter(r => r.status === 'paid').reduce((s, r) => s + (r.amount || 0), 0);
+        const totalPending = installmentRecords.filter(r => r.status === 'pending').reduce((s, r) => s + (r.amount || 0), 0);
+
+        let effectiveStatus = paymentStatus;
+        if (isInstallment) {
+          if (paidInstallments === numInstallments) {
+            effectiveStatus = 'paid';
+          } else if (paidInstallments > 0) {
+            effectiveStatus = 'partial';
+          } else {
+            effectiveStatus = 'pending';
+          }
+        }
+
+        payments.push({
+          paymentId,
+          bookingId,
+          patientName,
+          type: isDoctor ? 'doctor' : 'lab',
+          amount: isInstallment ? (installmentPlan.totalAmount || amount) : amount,
+          paidAmount: isInstallment ? totalPaid : (paymentStatus === 'paid' ? amount : 0),
+          pendingAmount: isInstallment ? totalPending : (paymentStatus === 'pending' ? amount : 0),
+          currency,
+          paymentMethod,
+          date: transactionDate,
+          status: effectiveStatus,
+          assignedTo,
+          testName: testDisplay,
+          isInstallment,
+          installmentPlan: installmentPlan ? {
+            totalAmount: installmentPlan.totalAmount,
+            installmentAmount: installmentPlan.installmentAmount,
+            numInstallments: installmentPlan.numInstallments,
+            status: installmentPlan.status,
+            paidInstallments,
+            records: installmentRecords.map(r => ({
+              number: r.installmentNumber,
+              amount: r.amount,
+              status: r.status,
+              dueDate: r.dueDate,
+              paidAt: r.paidAt
+            }))
+          } : null
+        });
+      });
+
+      payments.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+      return { success: true, payments };
+    } catch (error) {
+      console.error('getAllPayments error:', error);
+      return { success: false, error: error.message, payments: [] };
+    }
+  };
+
   const value = {
     currentUser,
     userRole,
@@ -1850,6 +1972,7 @@ export const FirebaseProvider = ({ children }) => {
     getLabRejectionReason,
     getRecentActivities,
     getLabRecentActivities,
+    getAllPayments,
     deactivateLab,
     reactivateLab,
     submitLabAppeal,

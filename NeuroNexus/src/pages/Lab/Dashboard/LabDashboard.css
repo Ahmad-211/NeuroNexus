@@ -50,6 +50,13 @@
     border: 1px solid #e9ecef;
 }
 
+.stat-card .d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
 .stat-card:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
     transform: translateY(-4px);
@@ -74,8 +81,20 @@
 
 /* Icon Background */
 .icon-bg {
-    min-width: 56px;
-    min-height: 56px;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.icon-bg i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
 }
 
 /* Activity Card */
@@ -205,21 +224,48 @@
         text-align: center !important;
     }
 
+    .stat-card .d-flex {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .stat-card .d-flex > div:first-child {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-card .icon-bg {
+        order: -1;
+    }
+
     .stat-card {
         padding: 16px;
     }
 
     .stat-card h3 {
         font-size: 1.375rem;
+        margin: 2px 0;
+    }
+
+    .stat-card p {
+        font-size: 0.8125rem;
+    }
+
+    .stat-card small {
+        font-size: 0.75rem;
+        margin-top: 2px;
     }
 
     .icon-bg {
-        width: 48px !important;
-        height: 48px !important;
+        width: 48px;
+        height: 48px;
     }
 
     .icon-bg i {
-        font-size: 24px !important;
+        font-size: 24px;
     }
 
     .activity-card {

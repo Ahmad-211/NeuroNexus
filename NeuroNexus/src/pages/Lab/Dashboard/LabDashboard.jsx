@@ -7,13 +7,15 @@ import './LabDashboard.css';
 
 function LabDashboard() {
   const navigate = useNavigate();
-  const { getLabTests, getLabBookings, getLabRecentActivities, currentUser } = useFirebase();
+  const { getLabTests, getLabBookings, getLabRecentActivities, getAllPayments, currentUser } = useFirebase();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [todayDate, setTodayDate] = useState('');
   const [totalTests, setTotalTests] = useState(0);
   const [pendingBookings, setPendingBookings] = useState(0);
   const [completedBookings, setCompletedBookings] = useState(0);
   const [todaysAppointments, setTodaysAppointments] = useState(0);
+  const [totalPayments, setTotalPayments] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
   const [activities, setActivities] = useState([]);
 
   const toggleSidebar = () => {
@@ -78,6 +80,15 @@ function LabDashboard() {
           setPendingBookings(pendingCount);
           setCompletedBookings(completedCount);
           setTodaysAppointments(todayCount);
+        }
+
+        // Fetch Payments
+        const paymentsResult = await getAllPayments(currentUser.uid);
+        if (paymentsResult.success && paymentsResult.payments) {
+          const pays = paymentsResult.payments;
+          setTotalPayments(pays.length);
+          const earnings = pays.filter(p => p.status === 'paid').reduce((s, p) => s + (p.isInstallment ? p.paidAmount : p.amount), 0);
+          setTotalEarnings(earnings);
         }
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -152,92 +163,93 @@ function LabDashboard() {
             {/* Stats Cards Row */}
             <div className="row g-3 mb-4">
               {/* Total Tests */}
-              <div className="col-md-6 col-lg-4">
+              <div className="col-12 col-sm-6 col-xl-4">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Tests</p>
                       <h3 className="mb-0 fw-bold text-dark">{totalTests}</h3>
                       <small className="text-muted"><i className="bi bi-beaker"></i> Available tests</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-heart-pulse-fill" style={{fontSize: '28px', color: '#3b82f6'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe'}}>
+                      <i className="bi bi-heart-pulse-fill" style={{color: '#3b82f6'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Pending Bookings */}
-              <div className="col-md-6 col-lg-4">
+              <div className="col-12 col-sm-6 col-xl-4">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Pending Bookings</p>
                       <h3 className="mb-0 fw-bold text-warning">{pendingBookings}</h3>
                       <small className="text-danger"><i className="bi bi-exclamation-circle"></i> Needs attention</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-hourglass-split" style={{fontSize: '28px', color: '#f59e0b'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7'}}>
+                      <i className="bi bi-hourglass-split" style={{color: '#f59e0b'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Completed Bookings */}
-              <div className="col-md-6 col-lg-4">
+              <div className="col-12 col-sm-6 col-xl-4">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Completed Bookings</p>
                       <h3 className="mb-0 fw-bold text-dark">{completedBookings}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-check-circle-fill" style={{fontSize: '28px', color: '#10b981'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF'}}>
+                      <i className="bi bi-check-circle-fill" style={{color: '#10b981'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Today's Appointments */}
-              <div className="col-md-6 col-lg-4">
+              <div className="col-12 col-sm-6 col-xl-4">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Today's Appointments</p>
                       <h3 className="mb-0 fw-bold text-dark">{todaysAppointments}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-calendar-check-fill" style={{fontSize: '28px', color: '#6366f1'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff'}}>
+                      <i className="bi bi-calendar-check-fill" style={{color: '#6366f1'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Total Payments */}
-              <div className="col-md-6 col-lg-4">
+              <div className="col-12 col-sm-6 col-xl-4">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Payments</p>
-                      <h3 className="mb-0 fw-bold text-dark">₹3.2L</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{totalPayments}</h3>
+                      <small className="text-muted"><i className="bi bi-cash-stack"></i> Earnings: Rs{totalEarnings.toLocaleString()}</small>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-cash-stack" style={{fontSize: '28px', color: '#059669'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3'}}>
+                      <i className="bi bi-cash-stack" style={{color: '#059669'}}></i>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Active Tests */}
-              <div className="col-md-6 col-lg-4">
+              <div className="col-12 col-sm-6 col-xl-4">
                 <div className="stat-card bg-white border-0 rounded-lg p-4 shadow-sm">
-                  <div className="d-flex justify-content-between align-items-start">
+                  <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Active Tests</p>
                       <h3 className="mb-0 fw-bold text-dark">{totalTests}</h3>
                     </div>
-                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fce7f3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                      <i className="bi bi-activity" style={{fontSize: '28px', color: '#ec4899'}}></i>
+                    <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fce7f3'}}>
+                      <i className="bi bi-activity" style={{color: '#ec4899'}}></i>
                     </div>
                   </div>
                 </div>

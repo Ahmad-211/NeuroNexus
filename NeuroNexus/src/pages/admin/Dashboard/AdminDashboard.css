@@ -58,7 +58,7 @@
 .stat-card .d-flex {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
 }
 
@@ -95,6 +95,7 @@
     display: flex !important;
     align-items: center;
     justify-content: center;
+    font-size: 28px;
 }
 
 .stat-card p {
@@ -188,13 +189,6 @@
     }
 }
 
-@media (max-width: 991px) {
-    .flex-grow-1.d-flex.flex-column {
-        margin-left: 0;
-        width: 100%;
-    }
-}
-
 @media (max-width: 768px) {
     .container-fluid {
         padding-left: 16px;
@@ -219,12 +213,40 @@
 }
 
 @media (max-width: 576px) {
+    .stat-card .d-flex {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .stat-card .d-flex > div:first-child {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-card .icon-bg {
+        order: -1;
+        margin-left: 0;
+    }
+
     .stat-card {
         padding: 14px;
     }
 
     .stat-card h3 {
         font-size: 18px;
+        margin: 2px 0;
+    }
+
+    .stat-card p {
+        font-size: 11px;
+    }
+
+    .stat-card small {
+        font-size: 10px;
+        margin-top: 2px;
     }
 
     .icon-bg {
@@ -233,7 +255,7 @@
     }
 
     .icon-bg i {
-        font-size: 20px !important;
+        font-size: 20px;
     }
 
     .activity-card .table {

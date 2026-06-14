@@ -336,4 +336,63 @@
     width: 36px;
     height: 36px;
   }
+
+  .navbar-right {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .navbar-container {
+    padding: 0 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .navbar-left {
+    gap: 0.5rem;
+  }
+
+  .navbar-right {
+    gap: 0.25rem;
+  }
+
+  .navbar-brand {
+    gap: 0.5rem;
+  }
+
+  .navbar-title {
+    font-size: 0.8125rem;
+  }
+
+  .menu-toggle {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .navbar-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .navbar-logo img {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .navbar-icon-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .profile-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-menu {
+    min-width: 180px;
+    right: 0;
+  }
 }
