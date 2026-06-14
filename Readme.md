@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="public/assets/images/logo_icon.png" alt="NeuroNexus Logo" width="120" />
+  <img src="NeuroNexus/public/assets/images/logo_icon.png" alt="NeuroNexus Logo" width="120" />
   <h1 align="center">🧠 NeuroNexus</h1>
   <p align="center">
     <strong>AI-Powered Healthcare Platform</strong>
