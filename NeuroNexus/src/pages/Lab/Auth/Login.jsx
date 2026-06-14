@@ -24,14 +24,14 @@ function LabLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [redirectPath, setRedirectPath] = useState('/lab/dashboard');
 
-  // Redirect if already logged in as lab (only after login attempt)
   useEffect(() => {
     if (currentUser && userRole === 'lab' && shouldRedirect) {
       setIsLoading(false);
-      navigate('/lab/dashboard', { replace: true });
+      navigate(redirectPath, { replace: true });
     }
-  }, [currentUser, userRole, navigate, shouldRedirect]);
+  }, [currentUser, userRole, navigate, shouldRedirect, redirectPath]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -87,9 +87,10 @@ function LabLogin() {
       const result = await loginLab(formData.email, formData.password);
       
       if (result.success) {
-        console.log('Lab login successful:', result.user);
+        console.log('Lab login successful:', result.user, 'Status:', result.registrationStatus);
+        const path = result.registrationStatus === 'rejected' ? '/lab/fix-registration' : '/lab/dashboard';
+        setRedirectPath(path);
         setShouldRedirect(true);
-        // Keep loading state - useEffect will handle navigation and reset loading
       } else {
         setErrors(prev => ({ ...prev, firebase: result.error || 'Login failed' }));
         setIsLoading(false);
@@ -215,9 +216,7 @@ function LabLogin() {
               )}
             </button>
           </form>
-
-
-          {/* Footer */}
+  {/* Footer */}
           <div className="login-footer">
             <p className="footer-text">
               Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('/lab/signup'); }} className="support-link">Sign up</a>

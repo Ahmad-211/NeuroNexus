@@ -94,7 +94,7 @@ function PendingLabs() {
     }
 
     try {
-      const result = await rejectLab(selectedLab.uid);
+      const result = await rejectLab(selectedLab.uid, rejectReason);
       
       if (result.success) {
         console.log('Lab rejected:', selectedLab.uid, 'Reason:', rejectReason);
@@ -160,6 +160,16 @@ function PendingLabs() {
                 <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
               Approved Labs
+            </button>
+            <button 
+              className="labs-tab-btn"
+              onClick={() => navigate('/labs/rejected')}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M6 6h12v12H6z" stroke="currentColor" strokeWidth="2"/>
+                <path d="M10 10l4 4M14 10l-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              Rejected Labs
             </button>
           </div>
 

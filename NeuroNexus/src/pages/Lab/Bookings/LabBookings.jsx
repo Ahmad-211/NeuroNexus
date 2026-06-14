@@ -47,6 +47,31 @@ function LabBookings() {
     setSidebarOpen(false);
   };
 
+  const getTestNames = (booking) => {
+    if (booking.tests) {
+      const testArr = Object.values(booking.tests);
+      return testArr.map(t => t.name || t.testName || 'Test').join(', ');
+    }
+    return booking.testName || 'N/A';
+  };
+
+  const getTestNameList = (booking) => {
+    if (booking.tests) {
+      const testArr = Object.values(booking.tests);
+      return testArr.map(t => t.name || t.testName || 'Test');
+    }
+    return booking.testName ? [booking.testName] : ['N/A'];
+  };
+
+  const getTotalPrice = (booking) => {
+    if (booking.payment?.amount) return booking.payment.amount;
+    if (booking.tests) {
+      const testArr = Object.values(booking.tests);
+      return testArr.reduce((sum, t) => sum + (t.price || 0), 0);
+    }
+    return 'N/A';
+  };
+
   // Payment status helper
   const getPaymentStatus = (booking) => {
     return booking.payment?.paymentStatus || booking.paymentStatus || 'N/A';
@@ -56,9 +81,9 @@ function LabBookings() {
   const filteredBookings = allBookings.filter(booking => {
     const query = searchQuery.toLowerCase();
     const patientName = (booking.patientNameSnapshot || booking.patientInfo?.fullName || '').toLowerCase();
-    const testName = (booking.testName || '').toLowerCase();
+    const testNames = getTestNameList(booking).join(' ').toLowerCase();
     const bookingId = (booking.bookingId || booking.id || '').toLowerCase();
-    const matchesSearch = patientName.includes(query) || testName.includes(query) || bookingId.includes(query);
+    const matchesSearch = patientName.includes(query) || testNames.includes(query) || bookingId.includes(query);
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
     const paymentStatus = getPaymentStatus(booking);
     const matchesPayment = paymentFilter === 'all' || paymentStatus === paymentFilter;
@@ -267,7 +292,8 @@ function LabBookings() {
                         <tbody>
                           {filteredBookings.map((booking) => {
                             const patientName = booking.patientNameSnapshot || booking.patientInfo?.fullName || 'N/A';
-                            const price = booking.payment?.amount || 'N/A';
+                            const price = getTotalPrice(booking);
+                            const testNames = getTestNames(booking);
                             const displayId = booking.bookingId || booking.id;
                             const paymentStatus = getPaymentStatus(booking);
 
@@ -285,7 +311,7 @@ function LabBookings() {
                                   </div>
                                 </td>
                                 <td className="px-4 py-3">
-                                  <div className="text-dark">{booking.testName || 'N/A'}</div>
+                                  <div className="text-dark">{testNames}</div>
                                 </td>
                                 <td className="px-4 py-3">
                                   <div className="fw-semibold">{booking.testDate || booking.selectedDate || booking.date || 'N/A'}</div>

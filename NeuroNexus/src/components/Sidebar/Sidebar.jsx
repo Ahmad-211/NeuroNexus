@@ -6,11 +6,12 @@ import './Sidebar.css';
 function Sidebar({ isOpen, closeSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentUser, getNotifications, getAllLabs, getAllDoctors, getAllComplaints, logout } = useFirebase();
+  const { currentUser, database, getNotifications, getAllLabs, getAllDoctors, getAllComplaints, logout } = useFirebase();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingLabsCount, setPendingLabsCount] = useState(0);
   const [pendingDoctorsCount, setPendingDoctorsCount] = useState(0);
   const [unassignedComplaintsCount, setUnassignedComplaintsCount] = useState(0);
+  const [appealCount, setAppealCount] = useState(0);
 
   // Fetch unread notifications count
   useEffect(() => {
@@ -84,6 +85,27 @@ function Sidebar({ isOpen, closeSidebar }) {
     return () => clearInterval(interval);
   }, [getAllComplaints]);
 
+  // Fetch pending lab appeal count
+  useEffect(() => {
+    const fetchAppealCount = async () => {
+      try {
+        const { ref, get } = await import('firebase/database');
+        const snap = await get(ref(database, 'labs'));
+        if (snap.exists()) {
+          const data = snap.val();
+          const count = Object.values(data).filter(lab => lab.appealMessage && lab.status === 'deactivated').length;
+          setAppealCount(count);
+        }
+      } catch (err) {
+        console.error('Error fetching appeal count:', err);
+      }
+    };
+
+    fetchAppealCount();
+    const interval = setInterval(fetchAppealCount, 30000);
+    return () => clearInterval(interval);
+  }, [database]);
+
   const getActiveMenu = () => {
     const path = location.pathname;
     if (path === '/dashboard') return 'dashboard';
@@ -94,7 +116,6 @@ function Sidebar({ isOpen, closeSidebar }) {
     if (path.startsWith('/payments')) return 'payments';
     if (path.startsWith('/complaints')) return 'complaints';
     if (path.startsWith('/notifications')) return 'notifications';
-    if (path.startsWith('/settings')) return 'settings';
     if (path.startsWith('/profile')) return 'profile';
     return 'dashboard';
   };
@@ -149,6 +170,9 @@ function Sidebar({ isOpen, closeSidebar }) {
               >
                 <i className="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
+                {appealCount > 0 && (
+                  <span className="badge badge-notifications ms-auto">{appealCount}</span>
+                )}
               </a>
             </li>
 
@@ -250,22 +274,9 @@ function Sidebar({ isOpen, closeSidebar }) {
               </a>
             </li>
 
-             {/* Divider */}
+            {/* Divider */}
             <li className="nav-item my-3">
               <hr className="text-muted" />
-            </li>
-
-
-            {/* Settings */}
-            <li className="nav-item mb-2">
-              <a
-                href="#"
-                className={`nav-link ${activeMenu === 'settings' ? 'active' : ''} text-white d-flex align-items-center gap-2`}
-                onClick={(e) => { e.preventDefault(); navigate('/settings'); closeSidebar(); }}
-              >
-                <i className="bi bi-gear"></i>
-                <span>Settings</span>
-              </a>
             </li>
 
             {/* Profile */}
@@ -279,8 +290,6 @@ function Sidebar({ isOpen, closeSidebar }) {
                 <span>Profile</span>
               </a>
             </li>
-
-           
 
             {/* Logout */}
             <li className="nav-item">

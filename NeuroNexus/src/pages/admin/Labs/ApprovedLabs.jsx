@@ -9,7 +9,7 @@ import './ApprovedLabs.css';
 
 function ApprovedLabs() {
   const navigate = useNavigate();
-  const { database } = useFirebase();
+  const { database, deactivateLab, reactivateLab } = useFirebase();
   const { alert, showSuccess, showError, showWarning, closeAlert } = useAlert();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [labs, setLabs] = useState([]);
@@ -70,27 +70,15 @@ function ApprovedLabs() {
     }
 
     try {
-      // TODO: Implement Firebase deactivation logic
-      /*
-      import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-      const db = getFirestore();
-      
-      await updateDoc(doc(db, 'labs', selectedLab.id), {
-        status: 'inactive',
-        deactivationReason: deactivateReason,
-        deactivatedDate: new Date().toISOString(),
-        deactivatedBy: currentAdminId
-      });
-      
-      // Send notification email
-      // await sendDeactivationEmail(selectedLab.email, deactivateReason);
-      */
+      const result = await deactivateLab(selectedLab.id, deactivateReason.trim());
+      if (!result.success) {
+        showError('Error!', result.error || 'Failed to deactivate lab.');
+        return;
+      }
 
-      console.log('Deactivating lab:', selectedLab.id, 'Reason:', deactivateReason);
-      
       setLabs(labs.map(lab => 
         lab.id === selectedLab.id 
-          ? { ...lab, status: 'inactive' }
+          ? { ...lab, status: 'deactivated' }
           : lab
       ));
       
@@ -107,20 +95,12 @@ function ApprovedLabs() {
   const handleActivate = async (lab) => {
     if (window.confirm(`Are you sure you want to activate ${lab.name}?`)) {
       try {
-        // TODO: Implement Firebase activation logic
-        /*
-        import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-        const db = getFirestore();
-        
-        await updateDoc(doc(db, 'labs', lab.id), {
-          status: 'active',
-          reactivatedDate: new Date().toISOString(),
-          reactivatedBy: currentAdminId
-        });
-        */
+        const result = await reactivateLab(lab.id);
+        if (!result.success) {
+          showError('Error!', result.error || 'Failed to activate lab.');
+          return;
+        }
 
-        console.log('Activating lab:', lab.id);
-        
         setLabs(labs.map(l => 
           l.id === lab.id 
             ? { ...l, status: 'active' }
@@ -147,8 +127,9 @@ function ApprovedLabs() {
       (lab.city && lab.city.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesLocation = filterLocation === 'all' || lab.city === filterLocation;
+    const matchesStatus = filterStatus === 'all' || lab.status === filterStatus;
     
-    return matchesSearch && matchesLocation;
+    return matchesSearch && matchesLocation && matchesStatus;
   });
 
   // Pagination
@@ -162,8 +143,8 @@ function ApprovedLabs() {
   // Statistics
   const stats = {
     total: labs.length,
-    active: labs.length,
-    inactive: 0
+    active: labs.filter(l => l.status === 'active').length,
+    deactivated: labs.filter(l => l.status === 'deactivated').length
   };
 
   return (
@@ -191,6 +172,16 @@ function ApprovedLabs() {
               </svg>
               Approved Labs
             </button>
+            <button 
+              className="labs-tab-btn"
+              onClick={() => navigate('/labs/rejected')}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M6 6h12v12H6z" stroke="currentColor" strokeWidth="2"/>
+                <path d="M10 10l4 4M14 10l-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              Rejected Labs
+            </button>
           </div>
 
           {/* Page Header */}
@@ -211,8 +202,8 @@ function ApprovedLabs() {
                 <span className="stat-badge-label">Active</span>
               </div>
               <div className="stat-badge inactive">
-                <span className="stat-badge-value">{stats.inactive}</span>
-                <span className="stat-badge-label">Inactive</span>
+                <span className="stat-badge-value">{stats.deactivated}</span>
+                <span className="stat-badge-label">Deactivated</span>
               </div>
             </div>
           </div>
@@ -257,7 +248,7 @@ function ApprovedLabs() {
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="deactivated">Deactivated</option>
               </select>
             </div>
           </div>

@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useFirebase } from '../../../context/Firebase';
 import Navbar from '../../../components/Navbar/Navbar';
 import Sidebar from '../../../components/Sidebar/Sidebar';
+import LabAppealAlerts from './LabAppealAlerts';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
-  const { getAllLabs, getAllDoctors, getAllComplaints, getAllPatients, getAllBookings } = useFirebase();
+  const { getAllLabs, getAllDoctors, getAllComplaints, getAllPatients, getAllBookings, getRecentActivities } = useFirebase();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [todayDate, setTodayDate] = useState('');
+  const [activities, setActivities] = useState([]);
   const [stats, setStats] = useState({
     totalLabs: 0,
     pendingLabApprovals: 0,
@@ -26,6 +28,7 @@ function AdminDashboard() {
     const today = new Date().toLocaleDateString('en-US', options);
     setTodayDate(today);
     fetchDashboardStats();
+    fetchActivities();
   }, []);
 
   const fetchDashboardStats = async () => {
@@ -78,6 +81,26 @@ function AdminDashboard() {
       console.error('Error fetching dashboard stats:', error);
       setLoading(false);
     }
+  };
+
+  const fetchActivities = async () => {
+    const result = await getRecentActivities();
+    if (result.success) {
+      setActivities(result.activities);
+    }
+  };
+
+  const timeAgo = (timestamp) => {
+    if (!timestamp) return '';
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30) return `${days}d ago`;
+    return new Date(timestamp).toLocaleDateString();
   };
 
   const toggleSidebar = () => {
@@ -186,7 +209,7 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Total Patients</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalPatients}</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +25% from last month</small>
+
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-people-fill" style={{fontSize: '28px', color: '#3b82f6'}}></i>
@@ -202,7 +225,6 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Active Patients</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.activePatients}</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +18% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#dbeafe', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-person-check-fill" style={{fontSize: '28px', color: '#3b82f6'}}></i>
@@ -218,7 +240,6 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Total Bookings</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.totalBookings}</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +15% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#e0e7ff', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-calendar-check-fill" style={{fontSize: '28px', color: '#6366f1'}}></i>
@@ -234,7 +255,7 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Completed</p>
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.completedBookings}</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +20% from last month</small>
+
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-check-circle-fill" style={{fontSize: '28px', color: '#10b981'}}></i>
@@ -253,7 +274,6 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Total Payments</p>
                       <h3 className="mb-0 fw-bold text-dark">342</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +15% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-cash-stack" style={{fontSize: '28px', color: '#059669'}}></i>
@@ -269,7 +289,6 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Paid</p>
                       <h3 className="mb-0 fw-bold text-dark">328</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +18% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-currency-rupee" style={{fontSize: '28px', color: '#10b981'}}></i>
@@ -285,7 +304,6 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Total Revenue</p>
                       <h3 className="mb-0 fw-bold text-dark">₹1.2M</h3>
-                      <small className="text-success"><i className="bi bi-arrow-up"></i> +22% from last month</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-graph-up-arrow" style={{fontSize: '28px', color: '#059669'}}></i>
@@ -301,13 +319,19 @@ function AdminDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Total Complaints</p>
                       <h3 className="mb-0 fw-bold text-warning">{loading ? '...' : stats.totalComplaints}</h3>
-                      <small className="text-muted">Filed complaints</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#fef3c7', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       <i className="bi bi-exclamation-triangle-fill" style={{fontSize: '28px', color: '#f59e0b'}}></i>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Lab Appeal Alerts */}
+            <div className="row g-3 mt-2">
+              <div className="col-12">
+                <LabAppealAlerts />
               </div>
             </div>
 
@@ -333,36 +357,20 @@ function AdminDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td><i className="bi bi-buildings text-primary me-2"></i> Lab Registered</td>
-                          <td>Diagnostic Lab XYZ</td>
-                          <td><span className="badge bg-warning">Pending</span></td>
-                          <td>2 hours ago</td>
-                        </tr>
-                        <tr>
-                          <td><i className="bi bi-person-doctor text-success me-2"></i> Doctor Approved</td>
-                          <td>Dr. Rajesh Kumar</td>
-                          <td><span className="badge bg-success">Approved</span></td>
-                          <td>5 hours ago</td>
-                        </tr>
-                        <tr>
-                          <td><i className="bi bi-credit-card text-info me-2"></i> Payment Received</td>
-                          <td>Patient ID: #5823</td>
-                          <td><span className="badge bg-success">Completed</span></td>
-                          <td>1 day ago</td>
-                        </tr>
-                        <tr>
-                          <td><i className="bi bi-exclamation-triangle text-danger me-2"></i> Complaint Filed</td>
-                          <td>Patient ID: #5901</td>
-                          <td><span className="badge bg-danger">Open</span></td>
-                          <td>1 day ago</td>
-                        </tr>
-                        <tr>
-                          <td><i className="bi bi-people text-secondary me-2"></i> New Patient</td>
-                          <td>Anjali Sharma</td>
-                          <td><span className="badge bg-info">Registered</span></td>
-                          <td>2 days ago</td>
-                        </tr>
+                        {activities.length === 0 ? (
+                          <tr>
+                            <td colSpan="4" className="text-center text-muted py-4">No recent activity</td>
+                          </tr>
+                        ) : (
+                          activities.map((act, i) => (
+                            <tr key={i}>
+                              <td><i className={`bi ${act.icon} text-${act.color} me-2`}></i> {act.description}</td>
+                              <td>{act.user}</td>
+                              <td><span className={`badge bg-${act.statusClass}`}>{act.status}</span></td>
+                              <td>{timeAgo(act.timestamp)}</td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>

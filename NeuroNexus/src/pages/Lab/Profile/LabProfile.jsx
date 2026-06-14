@@ -7,7 +7,7 @@ import { useAlert } from '../../../hooks/useAlert';
 import './LabProfile.css';
 
 function LabProfile() {
-  const { currentUser, getLabById, updateLabProfile, uploadLabLogo, changePassword } = useFirebase();
+  const { currentUser, getLabById, updateLabProfile, uploadLabLogo, changePassword, deleteLabAccount } = useFirebase();
   const { alert, showSuccess, showError, showWarning, closeAlert } = useAlert();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -200,6 +200,41 @@ function LabProfile() {
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete your account?\n\n' +
+      'This will permanently delete all your data including:\n' +
+      '- Your lab profile\n' +
+      '- All test records\n' +
+      '- All uploaded reports\n' +
+      '- All notifications\n\n' +
+      'This action CANNOT be undone.'
+    );
+    if (!confirmed) return;
+
+    const password = window.prompt('Please enter your current password to confirm deletion:');
+    if (!password) return;
+
+    setDeleting(true);
+    try {
+      const result = await deleteLabAccount(password);
+      if (result.success) {
+        showSuccess('Account Deleted', 'Your account has been deleted. Redirecting...');
+        setTimeout(() => {
+          window.location.href = '/lab/login';
+        }, 2000);
+      } else {
+        showError('Deletion Failed', result.error);
+      }
+    } catch (error) {
+      showError('Deletion Failed', error.message);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -482,6 +517,36 @@ function LabProfile() {
                     </form>
                   </div>
                 </div>
+
+                {/* Danger Zone - Delete Account */}
+                <div className="card border-0 shadow-sm border-danger mb-4">
+                  <div className="card-body p-4">
+                    <h5 className="card-title mb-4 fw-bold text-danger">
+                      <i className="bi bi-exclamation-triangle me-2"></i>
+                      Danger Zone
+                    </h5>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <div className="fw-semibold">Delete Account</div>
+                        <div className="text-muted small">
+                          Permanently delete your account and all associated data. This action cannot be undone.
+                        </div>
+                      </div>
+                      <button
+                        className="btn btn-danger"
+                        onClick={handleDeleteAccount}
+                        disabled={deleting}
+                      >
+                        {deleting ? (
+                          <><span className="spinner-border spinner-border-sm me-2"></span>Deleting...</>
+                        ) : (
+                          <><i className="bi bi-trash me-2"></i> Delete Account</>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
             )}

@@ -5,18 +5,24 @@ import './Navbar.css';
 
 function Navbar({ toggleSidebar, pageTitle }) {
   const navigate = useNavigate();
-  const { currentUser, getNotifications, logout } = useFirebase();
+  const { currentUser, getAdminProfile, getNotifications, logout } = useFirebase();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [adminData, setAdminData] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     if (currentUser) {
+      fetchAdminData();
       fetchUnreadCount();
-      // Refresh count every 30 seconds
       const interval = setInterval(fetchUnreadCount, 30000);
       return () => clearInterval(interval);
     }
   }, [currentUser]);
+
+  const fetchAdminData = async () => {
+    const result = await getAdminProfile(currentUser.uid);
+    if (result.success) setAdminData(result.admin);
+  };
 
   const fetchUnreadCount = async () => {
     try {
@@ -84,10 +90,21 @@ function Navbar({ toggleSidebar, pageTitle }) {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
               <div className="profile-avatar">
-                <i className="bi bi-person-circle"></i>
+                {adminData?.profilePicUrl ? (
+                  <img
+                    src={adminData.profilePicUrl}
+                    alt={adminData.name || 'Admin'}
+                    className="admin-avatar-image"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <i className="bi bi-person-circle" style={{ display: adminData?.profilePicUrl ? 'none' : 'flex' }}></i>
               </div>
               <div className="profile-info">
-                <span className="profile-name">Admin User</span>
+                <span className="profile-name">{adminData?.name || 'Admin'}</span>
                 <span className="profile-role">Administrator</span>
               </div>
               <i className="bi bi-chevron-down"></i>
@@ -104,16 +121,6 @@ function Navbar({ toggleSidebar, pageTitle }) {
                 >
                   <i className="bi bi-person-circle"></i>
                   My Profile
-                </button>
-                <button 
-                  onClick={() => {
-                    navigate('/settings');
-                    setShowProfileMenu(false);
-                  }} 
-                  className="profile-menu-item"
-                >
-                  <i className="bi bi-gear"></i>
-                  Settings
                 </button>
                 <button onClick={handleLogout} className="profile-menu-item logout">
                   <i className="bi bi-box-arrow-right"></i>

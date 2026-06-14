@@ -69,7 +69,19 @@ function AllBookings() {
     if (isDoctorBooking(booking)) {
       return booking.reasonForVisit || booking.specialization || booking.reason || 'N/A';
     }
+    if (booking.tests) {
+      const testArr = Object.values(booking.tests);
+      if (testArr.length === 1) return testArr[0].name || testArr[0].testName || 'Test';
+      if (testArr.length > 1) return `${testArr.length} Tests`;
+    }
     return booking.testName || 'N/A';
+  };
+
+  const getServiceNameFull = (booking) => {
+    if (booking.tests) {
+      return Object.values(booking.tests).map(t => t.name || t.testName || 'Test').join(', ');
+    }
+    return getServiceName(booking);
   };
 
   const getBookingDate = (booking) => {
@@ -95,9 +107,11 @@ function AllBookings() {
     const bookingId = (booking.bookingId || booking.id || '').toLowerCase();
     const patientName = (booking.patientNameSnapshot || '').toLowerCase();
     const assignedTo = getAssignedTo(booking).toLowerCase();
+    const serviceName = getServiceNameFull(booking).toLowerCase();
     const matchesSearch = bookingId.includes(searchTerm.toLowerCase()) ||
       patientName.includes(searchTerm.toLowerCase()) ||
-      assignedTo.includes(searchTerm.toLowerCase());
+      assignedTo.includes(searchTerm.toLowerCase()) ||
+      serviceName.includes(searchTerm.toLowerCase());
     const type = getBookingType(booking);
     const matchesType = bookingTypeFilter === 'all' || type === bookingTypeFilter;
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
@@ -355,7 +369,7 @@ function AllBookings() {
                                   <small>{getAssignedTo(booking)}</small>
                                 </td>
                                 <td className="px-4 py-3">
-                                  <small>{getServiceName(booking)}</small>
+                                  <small>{getServiceNameFull(booking)}</small>
                                 </td>
                                 <td className="px-4 py-3">
                                   <div className="fw-semibold">{dateStr}</div>

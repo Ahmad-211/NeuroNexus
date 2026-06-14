@@ -154,16 +154,6 @@ function LabNavbar({ toggleSidebar, pageTitle }) {
                   <i className="bi bi-person-circle"></i>
                   My Profile
                 </button>
-                <button 
-                  onClick={() => {
-                    navigate('/lab/settings');
-                    setShowProfileMenu(false);
-                  }} 
-                  className="lab-profile-menu-item"
-                >
-                  <i className="bi bi-gear"></i>
-                  Settings
-                </button>
                 <button onClick={handleLogout} className="lab-profile-menu-item logout">
                   <i className="bi bi-box-arrow-right"></i>
                   Logout

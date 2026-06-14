@@ -38,7 +38,6 @@ function LabSidebar({ isOpen, closeSidebar }) {
     if (path.startsWith('/lab/complaints')) return 'complaints';
     if (path.startsWith('/lab/notifications')) return 'notifications';
     if (path.startsWith('/lab/profile')) return 'profile';
-    if (path.startsWith('/lab/settings')) return 'settings';
     return 'dashboard';
   };
 
@@ -172,16 +171,10 @@ function LabSidebar({ isOpen, closeSidebar }) {
               </a>
             </li>
 
-                {/* Divider */}
+            {/* Divider */}
             <li className="nav-item my-3">
               <hr className="text-muted" />
             </li>
-
-                 {/* Divider */}
-            <li className="nav-item my-3">
-              <hr className="text-muted" />
-            </li>
-
 
             {/* Profile */}
             <li className="nav-item mb-2">
@@ -194,19 +187,6 @@ function LabSidebar({ isOpen, closeSidebar }) {
                 <span>Profile</span>
               </a>
             </li>
-
-            {/* Settings */}
-            <li className="nav-item mb-2">
-              <a
-                href="#"
-                className={`nav-link ${activeMenu === 'settings' ? 'active' : ''} text-white d-flex align-items-center gap-2`}
-                onClick={(e) => { e.preventDefault(); navigate('/lab/settings'); closeSidebar(); }}
-              >
-                <i className="bi bi-gear"></i>
-                <span>Settings</span>
-              </a>
-            </li>
-
 
             {/* Logout */}
             <li className="nav-item">

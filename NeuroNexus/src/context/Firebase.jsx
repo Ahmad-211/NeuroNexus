@@ -10,8 +10,11 @@ import {
   signOut,
   onAuthStateChanged,
   updatePassword,
+  updateEmail,
+  sendEmailVerification,
   reauthenticateWithCredential,
   EmailAuthProvider,
+  deleteUser,
   setPersistence,
   browserLocalPersistence
 } from "firebase/auth";
@@ -22,7 +25,9 @@ import {
   get, 
   update,
   remove,
-  push
+  push,
+  onValue,
+  off
 } from "firebase/database";
 import { 
   getStorage, 
@@ -74,6 +79,7 @@ export const useFirebase = () => {
 export const FirebaseProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [labStatus, setLabStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Listen to auth state changes
@@ -81,17 +87,35 @@ export const FirebaseProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
-        // Fetch user role from database
         const userRef = ref(database, `users/${user.uid}`);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
-          setUserRole(snapshot.val().role);
+          const userData = snapshot.val();
+          setUserRole(userData.role);
+          if (userData.role === 'lab') {
+            const labRef = ref(database, `labs/${user.uid}`);
+            const labSnap = await get(labRef);
+            if (labSnap.exists()) {
+              const labData = labSnap.val();
+              if (labData.status === "deactivated") {
+                setLabStatus("deactivated");
+              } else {
+                setLabStatus(labData.registrationStatus || null);
+              }
+            } else {
+              setLabStatus(null);
+            }
+          } else {
+            setLabStatus(null);
+          }
         } else {
           setUserRole(null);
+          setLabStatus(null);
         }
       } else {
         setCurrentUser(null);
         setUserRole(null);
+        setLabStatus(null);
       }
       setLoading(false);
     });
@@ -102,74 +126,44 @@ export const FirebaseProvider = ({ children }) => {
   // Admin Login Function
   const loginAdmin = async (email, password) => {
     try {
-      // Check if credentials match admin credentials
-      if (email === "admin@neuronexus.com" && password === "admin2113neuro") {
-        // Try to sign in
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const user = userCredential.user;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-          // Check if user exists in database
-          const userRef = ref(database, `users/${user.uid}`);
-          const snapshot = await get(userRef);
+      // Verify user has admin role in database
+      const userRef = ref(database, `users/${user.uid}`);
+      const snapshot = await get(userRef);
 
-          if (!snapshot.exists()) {
-            // Create admin entry in database
-            await set(userRef, {
-              email: email,
-              role: "admin",
-              status: "active",
-              createdAt: Date.now(),
-              lastLogin: Date.now()
-            });
-
-            // Create admin profile
-            await set(ref(database, `admin/${user.uid}`), {
-              uid: user.uid,
-              name: "Super Admin",
-              email: email,
-              permissions: "full"
-            });
-          } else {
-            // Update last login
-            await update(userRef, {
-              lastLogin: Date.now()
-            });
-          }
-
-          return { success: true, user };
-        } catch (error) {
-          // If user doesn't exist, create it
-          if (error.code === "auth/user-not-found" || error.code === "auth/invalid-credential") {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // Create admin entry in users node
-            await set(ref(database, `users/${user.uid}`), {
-              email: email,
-              role: "admin",
-              status: "active",
-              createdAt: Date.now(),
-              lastLogin: Date.now()
-            });
-
-            // Create admin profile
-            await set(ref(database, `admin/${user.uid}`), {
-              uid: user.uid,
-              name: "Super Admin",
-              email: email,
-              permissions: "full"
-            });
-
-            return { success: true, user };
-          }
-          throw error;
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        if (userData.role !== "admin") {
+          await signOut(auth);
+          throw new Error("Unauthorized: Not an admin account");
         }
+        await update(userRef, { lastLogin: Date.now() });
       } else {
-        throw new Error("Invalid admin credentials");
+        // Create admin entry in database if not exists
+        await set(userRef, {
+          email: email,
+          role: "admin",
+          status: "active",
+          createdAt: Date.now(),
+          lastLogin: Date.now()
+        });
+
+        await set(ref(database, `admin/${user.uid}`), {
+          uid: user.uid,
+          name: email.split('@')[0] || "Admin",
+          email: email,
+          permissions: "full"
+        });
       }
+
+      return { success: true, user };
     } catch (error) {
       console.error("Admin login error:", error);
+      if (error.code === "auth/user-not-found" || error.code === "auth/invalid-credential" || error.code === "auth/invalid-email") {
+        return { success: false, error: "Invalid email or password" };
+      }
       return { success: false, error: error.message };
     }
   };
@@ -180,13 +174,31 @@ export const FirebaseProvider = ({ children }) => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Verify user is a lab
       const userRef = ref(database, `users/${user.uid}`);
-      const snapshot = await get(userRef);
+      let snapshot = await get(userRef);
 
       if (!snapshot.exists()) {
-        await signOut(auth);
-        throw new Error("User not found");
+        const labRef = ref(database, `labs/${user.uid}`);
+        const labSnapshot = await get(labRef);
+        const labData = labSnapshot.exists() ? labSnapshot.val() : null;
+        if (!labData) {
+          await set(ref(database, `labs/${user.uid}`), {
+            uid: user.uid,
+            email: email,
+            name: "Lab",
+            registrationStatus: "rejected",
+            rejectedAt: Date.now(),
+            rejectionReason: "Account data was removed. Please re-submit your information."
+          });
+        }
+        await set(userRef, {
+          email: labData?.email || email,
+          role: "lab",
+          status: "active",
+          createdAt: Date.now(),
+          lastLogin: Date.now()
+        });
+        snapshot = await get(userRef);
       }
 
       const userData = snapshot.val();
@@ -200,28 +212,35 @@ export const FirebaseProvider = ({ children }) => {
         throw new Error("Account has been blocked");
       }
 
+      if (userData.status === "deactivated") {
+        const labRef = ref(database, `labs/${user.uid}`);
+        const labSnapshot = await get(labRef);
+        let labData = labSnapshot.exists() ? labSnapshot.val() : {};
+        await update(userRef, { lastLogin: Date.now() });
+        return { success: true, user, registrationStatus: "deactivated", labData };
+      }
+
       // Check registration status
       const labRef = ref(database, `labs/${user.uid}`);
       const labSnapshot = await get(labRef);
       
+      let regStatus = null;
       if (labSnapshot.exists()) {
         const labData = labSnapshot.val();
-        if (labData.registrationStatus === "pending") {
+        regStatus = labData.registrationStatus;
+        if (regStatus === "pending") {
           await signOut(auth);
           throw new Error("Your account is under review. You will be notified upon approval.");
         }
-        if (labData.registrationStatus === "rejected") {
-          await signOut(auth);
-          throw new Error("Your registration has been rejected. Please contact support for more information.");
+        if (regStatus === "rejected") {
+          await update(userRef, { lastLogin: Date.now() });
+          return { success: true, user, registrationStatus: "rejected" };
         }
       }
 
-      // Update last login
-      await update(userRef, {
-        lastLogin: Date.now()
-      });
+      await update(userRef, { lastLogin: Date.now() });
 
-      return { success: true, user };
+      return { success: true, user, registrationStatus: regStatus || "approved" };
     } catch (error) {
       console.error("Lab login error:", error);
       return { success: false, error: error.message };
@@ -329,27 +348,25 @@ export const FirebaseProvider = ({ children }) => {
   };
 
   // Reject Lab Function
-  const rejectLab = async (labUid) => {
+  const rejectLab = async (labUid, reason) => {
     try {
-      // Get lab data first
       const labRef = ref(database, `labs/${labUid}`);
       const labSnapshot = await get(labRef);
       const labData = labSnapshot.val();
 
-      // Update registration status to rejected instead of deleting
       await update(labRef, {
         registrationStatus: "rejected",
+        rejectionReason: reason || "No reason provided",
         rejectedAt: Date.now()
       });
 
-      // Send notification to admin (self-log)
       const adminId = await getAdminId();
       if (adminId && labData) {
         await createNotification({
           recipientUid: adminId,
           type: "REGISTRATION_ACTION",
           title: "Registration Action Completed",
-          message: `You rejected the registration of ${labData.name}.`,
+          message: `You rejected the registration of ${labData.name}. Reason: ${reason || 'No reason provided'}`,
           senderName: "Admin",
           bookingId: null
         });
@@ -358,6 +375,39 @@ export const FirebaseProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error("Reject lab error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Resubmit Lab Registration (for rejected labs)
+  const resubmitLabRegistration = async (labUid, updateData) => {
+    try {
+      const labRef = ref(database, `labs/${labUid}`);
+      const updates = {
+        ...updateData,
+        registrationStatus: "pending",
+        rejectedAt: null,
+        rejectionReason: null,
+        resubmittedAt: Date.now()
+      };
+      await update(labRef, updates);
+      return { success: true, message: "Application resubmitted. You will be notified upon approval." };
+    } catch (error) {
+      console.error("Resubmit lab registration error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const getLabRejectionReason = async (labUid) => {
+    try {
+      const labRef = ref(database, `labs/${labUid}`);
+      const snapshot = await get(labRef);
+      if (snapshot.exists()) {
+        return { success: true, lab: snapshot.val() };
+      }
+      return { success: false, error: "Lab not found" };
+    } catch (error) {
+      console.error("Get lab rejection reason error:", error);
       return { success: false, error: error.message };
     }
   };
@@ -579,12 +629,76 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  // Deactivate Lab Function
+  const deactivateLab = async (labUid, reason) => {
+    try {
+      const updates = {};
+      updates[`labs/${labUid}/status`] = "deactivated";
+      updates[`labs/${labUid}/adminReason`] = reason;
+      updates[`labs/${labUid}/deactivatedAt`] = Date.now();
+      updates[`labs/${labUid}/deactivatedBy`] = currentUser?.uid || "admin";
+      updates[`users/${labUid}/status`] = "deactivated";
+      await update(ref(database), updates);
+      return { success: true };
+    } catch (error) {
+      console.error("Deactivate lab error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Reactivate Lab Function
+  const reactivateLab = async (labUid) => {
+    try {
+      const updates = {};
+      updates[`labs/${labUid}/status`] = "active";
+      updates[`labs/${labUid}/adminReason`] = null;
+      updates[`labs/${labUid}/appealMessage`] = null;
+      updates[`labs/${labUid}/appealedAt`] = null;
+      updates[`labs/${labUid}/deactivatedAt`] = null;
+      updates[`labs/${labUid}/deactivatedBy`] = null;
+      updates[`users/${labUid}/status`] = "active";
+      await update(ref(database), updates);
+      return { success: true };
+    } catch (error) {
+      console.error("Reactivate lab error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Submit Lab Appeal Function
+  const submitLabAppeal = async (labUid, message) => {
+    try {
+      const updates = {};
+      updates[`labs/${labUid}/appealMessage`] = message;
+      updates[`labs/${labUid}/appealedAt`] = Date.now();
+      await update(ref(database), updates);
+      return { success: true };
+    } catch (error) {
+      console.error("Submit appeal error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Dismiss Lab Appeal Function
+  const dismissLabAppeal = async (labUid) => {
+    try {
+      const updates = {};
+      updates[`labs/${labUid}/appealMessage`] = null;
+      updates[`labs/${labUid}/appealedAt`] = null;
+      await update(ref(database), updates);
+      return { success: true };
+    } catch (error) {
+      console.error("Dismiss appeal error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
   // Logout Function
   const logout = async () => {
     try {
-      // Clear states immediately before signing out
       setCurrentUser(null);
       setUserRole(null);
+      setLabStatus(null);
       await signOut(auth);
       return { success: true };
     } catch (error) {
@@ -940,6 +1054,116 @@ export const FirebaseProvider = ({ children }) => {
   };
 
   // ============================================
+  // ADMIN PROFILE FUNCTIONS
+  // ============================================
+
+  const getAdminProfile = async (adminUid) => {
+    try {
+      const adminRef = ref(database, `admin/${adminUid}`);
+      const snapshot = await get(adminRef);
+      if (snapshot.exists()) {
+        return { success: true, admin: snapshot.val() };
+      }
+      return { success: false, error: "Admin not found" };
+    } catch (error) {
+      console.error("Get admin profile error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateAdminProfile = async (adminUid, profileData) => {
+    try {
+      const adminRef = ref(database, `admin/${adminUid}`);
+      await update(adminRef, profileData);
+      return { success: true, message: "Profile updated successfully" };
+    } catch (error) {
+      console.error("Update admin profile error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const uploadAdminProfilePicture = async (file) => {
+    try {
+      const url = await uploadImageToCloudinary(file);
+      if (!url) throw new Error('Upload returned no URL');
+      return { success: true, url };
+    } catch (error) {
+      console.error("Upload admin profile picture error:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateAdminEmail = async (currentPassword, newEmail) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return { success: false, error: "No user is currently logged in" };
+
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      try {
+        await updateEmail(user, newEmail);
+      } catch (emailError) {
+        if (emailError.code === 'auth/email-change-needs-verification') {
+          await sendEmailVerification(user);
+          return { success: false, error: "Your current email needs to be verified before changing. A verification email has been sent to " + user.email + ". Please verify and try again." };
+        }
+        throw emailError;
+      }
+
+      await update(ref(database, `admin/${user.uid}`), { email: newEmail });
+
+      return { success: true, message: "Email updated successfully in both Authentication and Database." };
+    } catch (error) {
+      console.error("Update admin email error:", error);
+      if (error.code === 'auth/wrong-password') {
+        return { success: false, error: "Current password is incorrect" };
+      }
+      if (error.code === 'auth/requires-recent-login') {
+        return { success: false, error: "Please log out and log in again before changing email" };
+      }
+      return { success: false, error: error.message };
+    }
+  };
+
+  // ============================================
+  // DELETE LAB ACCOUNT
+  // ============================================
+
+  const deleteLabAccount = async (currentPassword) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return { success: false, error: "No user is currently logged in" };
+
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      const uid = user.uid;
+      const dbRef = ref(database);
+
+      const updates = {};
+      updates[`users/${uid}`] = null;
+      updates[`labs/${uid}`] = null;
+      updates[`labReports/${uid}`] = null;
+      updates[`notifications/${uid}`] = null;
+      await update(dbRef, updates);
+
+      await deleteUser(user);
+
+      return { success: true, message: "Account deleted successfully" };
+    } catch (error) {
+      console.error("Delete lab account error:", error);
+      if (error.code === 'auth/wrong-password') {
+        return { success: false, error: "Current password is incorrect" };
+      }
+      if (error.code === 'auth/requires-recent-login') {
+        return { success: false, error: "Please log out and log in again before deleting" };
+      }
+      return { success: false, error: error.message };
+    }
+  };
+
+  // ============================================
   // BOOKING / APPOINTMENT FUNCTIONS
   // ============================================
 
@@ -1017,6 +1241,136 @@ export const FirebaseProvider = ({ children }) => {
     } catch (error) {
       console.error("Update booking status error:", error);
       return { success: false, error: error.message };
+    }
+  };
+
+  // Get Recent Activities for Admin Dashboard
+  const getRecentActivities = async () => {
+    try {
+      const activities = [];
+
+      const [labsSnap, doctorsSnap, bookingsSnap, complaintsSnap] = await Promise.all([
+        get(ref(database, 'labs')),
+        get(ref(database, 'doctors')),
+        get(ref(database, 'appointments')),
+        get(ref(database, 'complaints'))
+      ]);
+
+      if (labsSnap.exists()) {
+        Object.entries(labsSnap.val()).forEach(([uid, lab]) => {
+          if (lab.registrationStatus === 'pending') {
+            activities.push({
+              type: 'lab_registered',
+              icon: 'bi-buildings',
+              color: 'primary',
+              description: 'Lab Registered',
+              user: lab.name || 'Unknown Lab',
+              status: 'Pending',
+              statusClass: 'warning',
+              timestamp: lab.createdAt || 0
+            });
+          }
+        });
+      }
+
+      if (doctorsSnap.exists()) {
+        Object.entries(doctorsSnap.val()).forEach(([uid, doctor]) => {
+          if (doctor.registrationStatus === 'pending') {
+            activities.push({
+              type: 'doctor_registered',
+              icon: 'bi-person-doctor',
+              color: 'info',
+              description: 'Doctor Registered',
+              user: doctor.fullname || doctor.name || 'Unknown Doctor',
+              status: 'Pending',
+              statusClass: 'warning',
+              timestamp: doctor.createdAt || 0
+            });
+          }
+        });
+      }
+
+      if (bookingsSnap.exists()) {
+        Object.entries(bookingsSnap.val()).forEach(([id, booking]) => {
+          activities.push({
+            type: 'new_booking',
+            icon: 'bi-calendar-check',
+            color: 'success',
+            description: 'New Booking',
+            user: booking.patientName || booking.name || `Booking #${id.slice(-6)}`,
+            status: booking.status || 'Pending',
+            statusClass: booking.status === 'confirmed' ? 'success' : booking.status === 'completed' ? 'info' : 'warning',
+            timestamp: booking.createdAt || 0
+          });
+        });
+      }
+
+      const adminId = await getAdminId();
+      if (adminId) {
+        const notifSnap = await get(ref(database, `notifications/${adminId}`));
+        if (notifSnap.exists()) {
+          Object.entries(notifSnap.val()).forEach(([nid, notif]) => {
+            const ts = notif.timestamp || notif.createdAt || 0;
+            if (notif.type === 'NEW_LAB_REGISTRATION') {
+              activities.push({
+                type: 'lab_registered_notif',
+                icon: 'bi-buildings',
+                color: 'primary',
+                description: 'New Lab Registration',
+                user: notif.senderName || 'Unknown',
+                status: 'Pending',
+                statusClass: 'warning',
+                timestamp: ts
+              });
+            } else if (notif.type === 'REGISTRATION_ACTION') {
+              const isApproval = notif.title?.includes('Approved');
+              activities.push({
+                type: isApproval ? 'approved' : 'rejected',
+                icon: isApproval ? 'bi-check-circle' : 'bi-x-circle',
+                color: isApproval ? 'success' : 'danger',
+                description: notif.title || (isApproval ? 'Approved' : 'Rejected'),
+                user: notif.message?.replace(/^(You approved|You rejected)( the registration of)? /, '') || 'Unknown',
+                status: isApproval ? 'Approved' : 'Rejected',
+                statusClass: isApproval ? 'success' : 'danger',
+                timestamp: ts
+              });
+            } else if (notif.type === 'NEW_COMPLAINT') {
+              activities.push({
+                type: 'new_complaint',
+                icon: 'bi-exclamation-triangle',
+                color: 'danger',
+                description: 'Complaint Filed',
+                user: notif.senderName || 'Unknown',
+                status: 'Open',
+                statusClass: 'danger',
+                timestamp: ts
+              });
+            }
+          });
+        }
+      }
+
+      if (complaintsSnap.exists()) {
+        Object.entries(complaintsSnap.val()).forEach(([id, complaint]) => {
+          activities.push({
+            type: 'complaint',
+            icon: 'bi-exclamation-triangle',
+            color: 'danger',
+            description: complaint.subject || 'Complaint Filed',
+            user: complaint.username || 'Unknown',
+            status: complaint.status === 'pending' ? 'Open' : complaint.status || 'Open',
+            statusClass: complaint.status === 'resolved' ? 'success' : 'danger',
+            timestamp: complaint.createdAt || 0
+          });
+        });
+      }
+
+      activities.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      return { success: true, activities: activities.slice(0, 5) };
+    } catch (error) {
+      console.error("Get recent activities error:", error);
+      return { success: false, error: error.message, activities: [] };
     }
   };
 
@@ -1362,9 +1716,86 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  const getLabRecentActivities = async (labId) => {
+    try {
+      const activities = [];
+
+      const [bookingsSnap, complaintsSnap, reportsResult] = await Promise.all([
+        get(ref(database, 'appointments')),
+        get(ref(database, 'complaints')),
+        getLabReports(labId)
+      ]);
+
+      if (bookingsSnap.exists()) {
+        Object.entries(bookingsSnap.val()).forEach(([id, booking]) => {
+          if (booking.labId === labId) {
+            let testDisplay = 'Test';
+            if (booking.tests) {
+              const testArr = Object.values(booking.tests);
+              if (testArr.length === 1) {
+                testDisplay = testArr[0].testName || 'Test';
+              } else if (testArr.length > 1) {
+                testDisplay = `${testArr.length} Tests`;
+              }
+            } else if (booking.testName) {
+              testDisplay = booking.testName;
+            }
+            activities.push({
+              type: 'booking',
+              patientName: booking.patientName || 'Unknown',
+              patientId: booking.patientId || booking.accountHolderId || '',
+              testName: testDisplay,
+              status: booking.status || 'pending',
+              timestamp: booking.createdAt || 0,
+              bookingId: id
+            });
+          }
+        });
+      }
+
+      if (complaintsSnap.exists()) {
+        Object.entries(complaintsSnap.val()).forEach(([id, complaint]) => {
+          if (complaint.labId === labId) {
+            activities.push({
+              type: 'complaint',
+              patientName: complaint.username || 'Unknown',
+              patientId: '',
+              testName: `Complaint: ${complaint.subject || 'N/A'}`,
+              status: complaint.status === 'resolved' ? 'resolved' : 'open',
+              timestamp: complaint.createdAt || 0,
+              bookingId: null
+            });
+          }
+        });
+      }
+
+      if (reportsResult.success && reportsResult.data.length > 0) {
+        reportsResult.data.forEach(report => {
+          activities.push({
+            type: 'report',
+            patientName: report.patientName || 'Unknown',
+            patientId: report.patientId || '',
+            testName: report.testName || 'Report',
+            status: 'shared',
+            timestamp: report.issuedDate || report.createdAt || 0,
+            bookingId: report.bookingId || null
+          });
+        });
+      }
+
+      activities.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+      return { success: true, activities: activities.slice(0, 5) };
+    } catch (error) {
+      console.error('getLabRecentActivities error:', error);
+      return { success: false, error: error.message, activities: [] };
+    }
+  };
+
   const value = {
     currentUser,
     userRole,
+    labStatus,
     loading,
     loginAdmin,
     loginLab,
@@ -1400,6 +1831,10 @@ export const FirebaseProvider = ({ children }) => {
     updateBookingStatus,
     getAllPatients,
     togglePatientStatus,
+    getAdminProfile,
+    updateAdminProfile,
+    uploadAdminProfilePicture,
+    updateAdminEmail,
     logout,
     initializeDoctorCategories,
     getDoctorCategories,
@@ -1410,6 +1845,15 @@ export const FirebaseProvider = ({ children }) => {
     getLabReports,
     uploadReportFile,
     notifyReportShared,
+    deleteLabAccount,
+    resubmitLabRegistration,
+    getLabRejectionReason,
+    getRecentActivities,
+    getLabRecentActivities,
+    deactivateLab,
+    reactivateLab,
+    submitLabAppeal,
+    dismissLabAppeal,
     auth,
     database,
     storage

@@ -1,0 +1,128 @@
+.suspended-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.suspended-container {
+  width: 100%;
+  max-width: 540px;
+}
+
+.suspended-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.suspended-icon {
+  margin-bottom: 16px;
+}
+
+.suspended-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.suspended-subtitle {
+  color: #6c757d;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.admin-contact-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #495057;
+}
+
+.suspended-reason-card {
+  background: #fff3f3;
+  border: 1px solid #ffccd5;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.suspended-reason-card h5 {
+  color: #dc3545;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.suspended-reason-card p {
+  font-size: 14px;
+  color: #495057;
+  line-height: 1.6;
+}
+
+.appeal-status-card {
+  background: #fffef3;
+  border: 1px solid #ffe69c;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.appeal-status-card h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #856404;
+  margin-bottom: 4px;
+}
+
+.appeal-status-card p {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.appeal-prompt {
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.appeal-form {
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.appeal-form textarea {
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  padding: 12px;
+  font-size: 14px;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.appeal-form textarea:focus {
+  border-color: #667eea;
+  box-shadow: none;
+}
+
+.suspended-actions {
+  padding-top: 8px;
+  border-top: 1px solid #e9ecef;
+}

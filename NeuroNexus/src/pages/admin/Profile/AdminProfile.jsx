@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useFirebase } from '../../../context/Firebase';
 import Navbar from '../../../components/Navbar/Navbar';
 import Sidebar from '../../../components/Sidebar/Sidebar';
 import Alert from '../../../components/Alert/Alert';
@@ -6,26 +7,25 @@ import { useAlert } from '../../../hooks/useAlert';
 import './AdminProfile.css';
 
 function AdminProfile() {
+  const { currentUser, getAdminProfile, updateAdminProfile, uploadAdminProfilePicture, updateAdminEmail, changePassword } = useFirebase();
   const { alert, showSuccess, showError, showWarning, closeAlert } = useAlert();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Profile State
-  const [profileData, setProfileData] = useState({
-    name: 'Admin User',
-    email: 'admin@neuronexus.com',
-    phone: '+91 98765 43210',
-    role: 'Administrator',
-    joinedDate: 'January 2024',
-    department: 'Administration',
-    location: 'Mumbai, Maharashtra',
-    bio: 'System Administrator managing the NeuroNexus Healthcare Platform'
-  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Profile Picture State
   const [profilePicture, setProfilePicture] = useState(null);
+  const [pictureFile, setPictureFile] = useState(null);
 
-  // Password State
+  const [profileData, setProfileData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    bio: ''
+  });
+  const [originalEmail, setOriginalEmail] = useState('');
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -38,9 +38,28 @@ function AdminProfile() {
     confirm: false
   });
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+  useEffect(() => {
+    if (currentUser) fetchProfile();
+  }, [currentUser]);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    const result = await getAdminProfile(currentUser.uid);
+    if (result.success) {
+      const admin = result.admin;
+      setProfileData({
+        name: admin.name || '',
+        email: admin.email || '',
+        phone: admin.phone || '',
+        bio: admin.bio || ''
+      });
+      setOriginalEmail(admin.email || '');
+      setProfilePicture(admin.profilePicUrl || null);
+    }
+    setLoading(false);
   };
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -56,29 +75,72 @@ function AdminProfile() {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePicture(reader.result);
-      };
+      reader.onloadend = () => setProfilePicture(reader.result);
       reader.readAsDataURL(file);
-      // TODO: Upload to Firebase Storage
+      setPictureFile(file);
     }
   };
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    setSaving(true);
+
     try {
-      // TODO: Update profile in Firebase
-      showSuccess('Success!', 'Profile updated successfully!');
-      setIsEditing(false);
+      let profilePicUrl = profilePicture;
+
+      if (pictureFile) {
+        const uploadResult = await uploadAdminProfilePicture(pictureFile);
+        if (!uploadResult.success) {
+          showError('Upload Failed', uploadResult.error);
+          setSaving(false);
+          return;
+        }
+        profilePicUrl = uploadResult.url;
+      }
+
+      if (profileData.email !== originalEmail) {
+        const currentPassword = window.prompt('Enter your current password to update email:');
+        if (!currentPassword) {
+          showWarning('Cancelled', 'Email change requires password confirmation.');
+          setSaving(false);
+          return;
+        }
+        const emailResult = await updateAdminEmail(currentPassword, profileData.email);
+        if (!emailResult.success) {
+          showError('Email Update Failed', emailResult.error);
+          setSaving(false);
+          return;
+        }
+      }
+
+      const updateData = {
+        name: profileData.name,
+        phone: profileData.phone,
+        bio: profileData.bio
+      };
+      if (profilePicUrl && pictureFile) {
+        updateData.profilePicUrl = profilePicUrl;
+      }
+
+      const result = await updateAdminProfile(currentUser.uid, updateData);
+      if (result.success) {
+        showSuccess('Success!', 'Profile updated successfully!');
+        setIsEditing(false);
+        setPictureFile(null);
+        fetchProfile();
+      } else {
+        showError('Error!', result.error);
+      }
     } catch (error) {
-      console.error('Error updating profile:', error);
       showError('Error!', 'Failed to update profile.');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       showWarning('Mismatch!', 'New passwords do not match!');
       return;
@@ -89,23 +151,43 @@ function AdminProfile() {
       return;
     }
 
+    setPasswordLoading(true);
+
     try {
-      // TODO: Update password in Firebase Auth
-      showSuccess('Success!', 'Password changed successfully!');
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
+      const result = await changePassword(passwordData.currentPassword, passwordData.newPassword);
+      if (result.success) {
+        showSuccess('Success!', 'Password changed successfully!');
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        showError('Error!', result.error || 'Failed to change password.');
+      }
     } catch (error) {
-      console.error('Error changing password:', error);
       showError('Error!', 'Failed to change password.');
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
   };
+
+  if (loading) {
+    return (
+      <div className="d-flex vh-100">
+        <Sidebar isOpen={isSidebarOpen} closeSidebar={() => setIsSidebarOpen(false)} />
+        <div className="flex-grow-1 d-flex flex-column">
+          <Navbar toggleSidebar={toggleSidebar} pageTitle="Admin Profile" />
+          <main className="flex-grow-1 overflow-y-auto d-flex align-items-center justify-content-center">
+            <div className="text-center">
+              <div className="spinner-border text-primary mb-3" role="status"><span className="visually-hidden">Loading...</span></div>
+              <p className="text-muted">Loading profile...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="d-flex vh-100">
@@ -114,7 +196,6 @@ function AdminProfile() {
         <Navbar toggleSidebar={toggleSidebar} pageTitle="Admin Profile" />
         <main className="flex-grow-1 overflow-y-auto">
           <div className="w-100 p-4 profile-page">
-            {/* Header */}
             <div className="page-header mb-4">
               <div>
                 <h2 className="page-title mb-2">
@@ -128,9 +209,7 @@ function AdminProfile() {
             </div>
 
             <div className="row g-4">
-              {/* Left Column - Profile Picture & Quick Stats */}
               <div className="col-lg-4">
-                {/* Profile Picture Card */}
                 <div className="card shadow-sm mb-4">
                   <div className="card-body text-center">
                     <div className="profile-picture-wrapper mb-3">
@@ -154,8 +233,8 @@ function AdminProfile() {
                         style={{ display: 'none' }}
                       />
                     </div>
-                    <h4 className="mb-1">{profileData.name}</h4>
-                    <p className="text-muted mb-3">{profileData.role}</p>
+                    <h4 className="mb-1">{profileData.name || 'Admin'}</h4>
+                    <p className="text-muted mb-3">Administrator</p>
                     <div className="profile-badges">
                       <span className="badge bg-primary">
                         <i className="bi bi-shield-check me-1"></i> Verified Admin
@@ -163,41 +242,9 @@ function AdminProfile() {
                     </div>
                   </div>
                 </div>
-
-                {/* Account Info Card */}
-                <div className="card shadow-sm">
-                  <div className="card-header bg-white">
-                    <h6 className="mb-0"><i className="bi bi-info-circle me-2"></i>Account Information</h6>
-                  </div>
-                  <div className="card-body">
-                    <div className="info-item">
-                      <div className="info-label">
-                        <i className="bi bi-calendar-check text-primary me-2"></i>
-                        Joined
-                      </div>
-                      <div className="info-value">{profileData.joinedDate}</div>
-                    </div>
-                    <div className="info-item">
-                      <div className="info-label">
-                        <i className="bi bi-building text-success me-2"></i>
-                        Department
-                      </div>
-                      <div className="info-value">{profileData.department}</div>
-                    </div>
-                    <div className="info-item">
-                      <div className="info-label">
-                        <i className="bi bi-geo-alt text-danger me-2"></i>
-                        Location
-                      </div>
-                      <div className="info-value">{profileData.location}</div>
-                    </div>
-                  </div>
-                </div>
               </div>
 
-              {/* Right Column - Profile Form & Password */}
               <div className="col-lg-8">
-                {/* Profile Information Card */}
                 <div className="card shadow-sm mb-4">
                   <div className="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 className="mb-0"><i className="bi bi-person-lines-fill me-2"></i>Profile Details</h5>
@@ -247,7 +294,6 @@ function AdminProfile() {
                             value={profileData.phone}
                             onChange={handleProfileChange}
                             disabled={!isEditing}
-                            required
                           />
                         </div>
                         <div className="col-md-6">
@@ -255,8 +301,7 @@ function AdminProfile() {
                           <input
                             type="text"
                             className="form-control"
-                            name="role"
-                            value={profileData.role}
+                            value="Administrator"
                             disabled
                           />
                         </div>
@@ -274,8 +319,12 @@ function AdminProfile() {
                       </div>
                       {isEditing && (
                         <div className="mt-4">
-                          <button type="submit" className="btn btn-primary">
-                            <i className="bi bi-check-circle me-2"></i> Save Changes
+                          <button type="submit" className="btn btn-primary" disabled={saving}>
+                            {saving ? (
+                              <><span className="spinner-border spinner-border-sm me-2"></span>Saving...</>
+                            ) : (
+                              <><i className="bi bi-check-circle me-2"></i> Save Changes</>
+                            )}
                           </button>
                         </div>
                       )}
@@ -283,7 +332,6 @@ function AdminProfile() {
                   </div>
                 </div>
 
-                {/* Change Password Card */}
                 <div className="card shadow-sm">
                   <div className="card-header bg-white">
                     <h5 className="mb-0"><i className="bi bi-lock-fill me-2"></i>Change Password</h5>
@@ -354,8 +402,12 @@ function AdminProfile() {
                         </div>
                       </div>
                       <div className="mt-4">
-                        <button type="submit" className="btn btn-primary">
-                          <i className="bi bi-shield-check me-2"></i> Change Password
+                        <button type="submit" className="btn btn-primary" disabled={passwordLoading}>
+                          {passwordLoading ? (
+                            <><span className="spinner-border spinner-border-sm me-2"></span>Changing...</>
+                          ) : (
+                            <><i className="bi bi-shield-check me-2"></i> Change Password</>
+                          )}
                         </button>
                       </div>
                     </form>

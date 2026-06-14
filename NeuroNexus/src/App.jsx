@@ -15,9 +15,11 @@ import AdminForgetPassword from './pages/admin/Auth/ForgetPassword'
 import AdminDashboard from './pages/admin/Dashboard/AdminDashboard'
 import PendingLabs from './pages/admin/Labs/PendingLabs'
 import ApprovedLabs from './pages/admin/Labs/ApprovedLabs'
+import RejectedLabs from './pages/admin/Labs/RejectedLabs'
 import LabDetails from './pages/admin/Labs/LabDetails'
 import PendingDoctors from './pages/admin/Doctors/PendingDoctors'
 import ApprovedDoctors from './pages/admin/Doctors/ApprovedDoctors'
+import RejectedDoctors from './pages/admin/Doctors/RejectedDoctors'
 import DoctorDetails from './pages/admin/Doctors/DoctorDetails'
 import ManageCategories from './pages/admin/Doctors/ManageCategories'
 import AllPatients from './pages/admin/Patients/AllPatients'
@@ -27,7 +29,6 @@ import PaymentDetails from './pages/admin/Payments/PaymentDetails'
 import ComplaintsList from './pages/admin/Complains/ComplaintsList'
 import ComplaintDetails from './pages/admin/Complains/ComplaintDetails'
 import Notifications from './pages/admin/Notifications/Notifications'
-import Settings from './pages/admin/Profile/Settings'
 import AdminProfile from './pages/admin/Profile/AdminProfile'
 
 // Lab Pages
@@ -45,7 +46,8 @@ import LabPayments from './pages/Lab/Payments/LabPayments'
 import SubmitComplaint from './pages/Lab/Complaints/SubmitComplaint'
 import LabNotifications from './pages/Lab/Notifications/LabNotifications'
 import LabProfile from './pages/Lab/Profile/LabProfile'
-import LabSettings from './pages/Lab/Profile/LabSettings'
+import LabFixRegistration from './pages/Lab/Auth/FixRegistration'
+import LabSuspended from './pages/Lab/Auth/SuspendedPage'
 
 function App() {
   return (
@@ -61,10 +63,12 @@ function App() {
         <Route path="/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
         <Route path="/labs/pending" element={<AdminProtectedRoute><PendingLabs /></AdminProtectedRoute>} />
         <Route path="/labs/approved" element={<AdminProtectedRoute><ApprovedLabs /></AdminProtectedRoute>} />
+        <Route path="/labs/rejected" element={<AdminProtectedRoute><RejectedLabs /></AdminProtectedRoute>} />
         <Route path="/labs/:id" element={<AdminProtectedRoute><LabDetails /></AdminProtectedRoute>} />
         <Route path="/labs" element={<Navigate to="/labs/pending" replace />} />
         <Route path="/doctors/pending" element={<AdminProtectedRoute><PendingDoctors /></AdminProtectedRoute>} />
         <Route path="/doctors/approved" element={<AdminProtectedRoute><ApprovedDoctors /></AdminProtectedRoute>} />
+        <Route path="/doctors/rejected" element={<AdminProtectedRoute><RejectedDoctors /></AdminProtectedRoute>} />
         <Route path="/doctors/categories" element={<AdminProtectedRoute><ManageCategories /></AdminProtectedRoute>} />
         <Route path="/doctors/:id" element={<AdminProtectedRoute><DoctorDetails /></AdminProtectedRoute>} />
         <Route path="/doctors" element={<Navigate to="/doctors/pending" replace />} />
@@ -75,13 +79,14 @@ function App() {
         <Route path="/complaints" element={<AdminProtectedRoute><ComplaintsList /></AdminProtectedRoute>} />
         <Route path="/complaints/:id" element={<AdminProtectedRoute><ComplaintDetails /></AdminProtectedRoute>} />
         <Route path="/notifications" element={<AdminProtectedRoute><Notifications /></AdminProtectedRoute>} />
-        <Route path="/settings" element={<AdminProtectedRoute><Settings /></AdminProtectedRoute>} />
         <Route path="/profile" element={<AdminProtectedRoute><AdminProfile /></AdminProtectedRoute>} />
 
         {/* Lab Routes */}
         <Route path="/lab/login" element={<LabLogin />} />
         <Route path="/lab/signup" element={<LabSignup />} />
         <Route path="/lab/forget-password" element={<LabForgetPassword />} />
+        <Route path="/lab/fix-registration" element={<LabProtectedRoute><LabFixRegistration /></LabProtectedRoute>} />
+        <Route path="/lab/suspended" element={<LabProtectedRoute><LabSuspended /></LabProtectedRoute>} />
         <Route path="/lab/dashboard" element={<LabProtectedRoute><LabDashboard /></LabProtectedRoute>} />
         <Route path="/lab/tests" element={<LabProtectedRoute><TestList /></LabProtectedRoute>} />
         <Route path="/lab/tests/add" element={<LabProtectedRoute><AddTest /></LabProtectedRoute>} />
@@ -93,7 +98,6 @@ function App() {
         <Route path="/lab/complaints" element={<LabProtectedRoute><SubmitComplaint /></LabProtectedRoute>} />
         <Route path="/lab/notifications" element={<LabProtectedRoute><LabNotifications /></LabProtectedRoute>} />
         <Route path="/lab/profile" element={<LabProtectedRoute><LabProfile /></LabProtectedRoute>} />
-        <Route path="/lab/settings" element={<LabProtectedRoute><LabSettings /></LabProtectedRoute>} />
       </Routes>
     </Router>
   )

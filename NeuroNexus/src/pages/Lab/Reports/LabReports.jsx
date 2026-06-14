@@ -76,6 +76,27 @@ function LabReports() {
 
   const currentBookingObj = bookings.find(b => b.id === selectedBooking || b.bookingId === selectedBooking);
 
+  const getSelectedTestObj = () => {
+    if (!currentBookingObj || !selectedTest) return null;
+    if (currentBookingObj.tests) {
+      const testArr = Object.values(currentBookingObj.tests);
+      return testArr.find(t => t.testId === selectedTest || t.id === selectedTest) || null;
+    }
+    return null;
+  };
+
+  const getSelectedTestName = () => {
+    const testObj = getSelectedTestObj();
+    if (testObj) return testObj.testName || testObj.name || 'Unknown Test';
+    return currentBookingObj?.testName || 'Unknown Test';
+  };
+
+  const getSelectedTestId = () => {
+    const testObj = getSelectedTestObj();
+    if (testObj) return testObj.testId || testObj.id || '';
+    return currentBookingObj?.testId || selectedTest || '';
+  };
+
   const handleNextStep = () => setUploadStep(prev => prev + 1);
   const handlePrevStep = () => setUploadStep(prev => prev - 1);
 
@@ -89,16 +110,19 @@ function LabReports() {
 
       const patientInfo = currentBookingObj.patientInfo || {};
       const patientName = patientInfo.fullName || currentBookingObj.patientNameSnapshot || 'N/A';
-      
+      const testObj = getSelectedTestObj();
+      const actualTestName = getSelectedTestName();
+      const actualTestId = getSelectedTestId();
+
       const reportData = {
         bookingId: currentBookingObj.id || currentBookingObj.bookingId,
         labId: currentUser.uid,
         labName: currentUser.displayName || 'Lab',
         patientProfileId: currentBookingObj.patientProfileId || currentBookingObj.patientInfo?.profileId || currentBookingObj.patientId,
         patientName: patientName,
-        testId: selectedTest,
-        testName: currentBookingObj.testName || 'Unknown Test',
-        testType: currentBookingObj.testType || currentBookingObj.bookingType || 'Lab Test',
+        testId: actualTestId,
+        testName: actualTestName,
+        testType: testObj?.testType || currentBookingObj.testType || currentBookingObj.bookingType || 'Lab Test',
         testDate: currentBookingObj.testDate || '',
         testTime: currentBookingObj.testTime || '',
         fileUrl: uploadResult.url,
@@ -316,11 +340,14 @@ function LabReports() {
                     <h6>Step 1: Select Booking</h6>
                     <select className="form-select" value={selectedBooking} onChange={(e) => setSelectedBooking(e.target.value)}>
                       <option value="">-- Select a Booking --</option>
-                      {bookings.map(b => (
-                        <option key={b.id || b.bookingId} value={b.id || b.bookingId}>
-                          Booking: {b.id || b.bookingId} - {b.patientInfo?.fullName || b.patientNameSnapshot} ({b.testDate||'N/A'})
-                        </option>
-                      ))}
+                      {bookings.map(b => {
+                        const testCount = b.tests ? Object.keys(b.tests).length : (b.testName ? 1 : 0);
+                        return (
+                          <option key={b.id || b.bookingId} value={b.id || b.bookingId}>
+                            Booking: {b.id || b.bookingId} - {b.patientInfo?.fullName || b.patientNameSnapshot} ({testCount} test{testCount !== 1 ? 's' : ''})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                 )}
@@ -329,11 +356,15 @@ function LabReports() {
                     <h6>Step 2: Select Test</h6>
                     <select className="form-select" value={selectedTest} onChange={(e) => setSelectedTest(e.target.value)}>
                       <option value="">-- Select a Test --</option>
-                      {currentBookingObj?.testId && (
+                      {currentBookingObj?.tests ? (
+                        Object.values(currentBookingObj.tests).map((test, idx) => (
+                          <option key={test.testId || test.id || idx} value={test.testId || test.id}>{test.testName || test.name || `Test ${idx + 1}`}</option>
+                        ))
+                      ) : currentBookingObj?.testId ? (
                         <option value={currentBookingObj.testId}>{currentBookingObj.testName || currentBookingObj.testId}</option>
-                      )}
+                      ) : null}
                     </select>
-                    {(!currentBookingObj?.testId) && <p className="text-muted mt-2">No tests available for this booking.</p>}
+                    {(!currentBookingObj?.tests && !currentBookingObj?.testId) && <p className="text-muted mt-2">No tests available for this booking.</p>}
                   </div>
                 )}
                 {uploadStep === 3 && (
@@ -346,7 +377,7 @@ function LabReports() {
                   <div>
                     <h6>Step 4: Summary & Confirm</h6>
                     <p className="mb-1"><strong>Patient:</strong> {currentBookingObj?.patientInfo?.fullName || currentBookingObj?.patientNameSnapshot}</p>
-                    <p className="mb-1"><strong>Test:</strong> {currentBookingObj?.testName}</p>
+                    <p className="mb-1"><strong>Test:</strong> {getSelectedTestName()}</p>
                     <p className="mb-3"><strong>File:</strong> {uploadFile?.name}</p>
                     <label className="form-label">Result Summary (Optional)</label>
                     <textarea className="form-control" rows="3" value={resultSummary} onChange={(e) => setResultSummary(e.target.value)}></textarea>

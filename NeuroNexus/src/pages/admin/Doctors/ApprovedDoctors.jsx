@@ -121,7 +121,14 @@ function ApprovedDoctors() {
                   onClick={() => navigate('/doctors/pending')}
                 >
                   <i className="bi bi-clock-history me-2"></i>
-                  View Pending Doctors
+                  Pending
+                </button>
+                <button 
+                  className="btn btn-outline-primary me-2"
+                  onClick={() => navigate('/doctors/rejected')}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Rejected
                 </button>
                 <span className="badge bg-success me-2">{activeCount} Active</span>
                 <span className="badge bg-secondary">{inactiveCount} Inactive</span>
