@@ -147,7 +147,7 @@ function TestList() {
                           <tr>
                             <th className="px-4 py-3">Test Name</th>
                             <th className="py-3">Category</th>
-                            <th className="py-3">Price (₹)</th>
+                            <th className="py-3">Price ($)</th>
                             <th className="py-3 text-center">Actions</th>
                           </tr>
                         </thead>
@@ -181,7 +181,7 @@ function TestList() {
                                   </span>
                                 </td>
                                 <td className="py-3">
-                                  <span className="fw-semibold">₹{test.price}</span>
+                                  <span className="fw-semibold">${test.price}</span>
                                 </td>
                                 <td className="py-3 text-center">
                                   <button

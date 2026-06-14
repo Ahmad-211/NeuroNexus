@@ -250,14 +250,14 @@ function LabBookingDetails() {
                                   <td className="py-2">{i + 1}</td>
                                   <td className="py-2 fw-semibold">{t.name || t.testName || 'Test'}</td>
                                   <td className="py-2"><span className="badge bg-primary-subtle text-primary">{t.testType || 'N/A'}</span></td>
-                                  <td className="py-2 text-end fw-bold text-success">{t.price ? `PKR${t.price}` : '-'}</td>
+                                  <td className="py-2 text-end fw-bold text-success">{t.price ? `$${t.price}` : '-'}</td>
                                 </tr>
                               ))}
                             </tbody>
                             <tfoot>
                               <tr className="table-light">
                                 <td colSpan="3" className="py-2 fw-bold text-end">Total:</td>
-                                <td className="py-2 fw-bold text-end text-success fs-5">PKR{totalPrice}</td>
+                                <td className="py-2 fw-bold text-end text-success fs-5">${totalPrice}</td>
                               </tr>
                             </tfoot>
                           </table>
@@ -274,7 +274,7 @@ function LabBookingDetails() {
                           <div className="booking-info-bar-item">
                             <label className="text-muted small d-block">Price</label>
                             <p className="fw-bold mb-0 fs-4 text-success">
-                              {payment.amount ? `PKR${payment.amount}` : 'N/A'}
+                              {payment.amount ? `$${payment.amount}` : 'N/A'}
                             </p>
                           </div>
                         </div>

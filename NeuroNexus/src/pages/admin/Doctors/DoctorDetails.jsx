@@ -33,7 +33,7 @@ function DoctorDetails() {
         licenseNumber: 'MCI-11111',
         qualification: 'MBBS, MD (Cardiology), FACC',
         experience: '15 years',
-        consultationFee: '₹1000',
+        consultationFee: '$1000',
         phone: '+91 98765 11111',
         email: 'anita.desai@email.com',
         status: 'active',

@@ -74,14 +74,12 @@ function SuspendedPage() {
 
   if (loading) {
     return (
-      <div className="suspended-page">
-        <div className="suspended-container">
-          <div className="text-center py-5">
-            <div className="spinner-border text-danger" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3 text-muted">Loading...</p>
+      <div className="lab-sp-container">
+        <div className="lab-sp-loader-card">
+          <div className="spinner-border text-danger" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
+          <p className="mt-3 text-muted">Loading Account Details...</p>
         </div>
       </div>
     );
@@ -90,65 +88,56 @@ function SuspendedPage() {
   const hasAppealed = labData?.appealMessage && labData?.appealedAt;
 
   return (
-    <div className="suspended-page">
-      <div className="suspended-container">
-        <div className="suspended-card">
-          <div className="suspended-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc3545" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+    <div className="lab-sp-container">
+      {alert.show && (
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          message={alert.message}
+          onClose={closeAlert}
+        />
+      )}
+      <div className="lab-sp-wrapper">
+        {/* Left Panel - Info & Appeal Form */}
+        <div className="lab-sp-info-panel">
+          <div className="lab-sp-info-header">
+            <h2 className="lab-sp-title">Account Deactivated</h2>
+            <p className="lab-sp-subtitle">Your lab portal access has been restricted by the administrator.</p>
           </div>
 
-          <h2 className="suspended-title">Account Suspended</h2>
-
-          <p className="suspended-subtitle">
-            Your lab account has been deactivated by the administrator.
-          </p>
-
-          <div className="suspended-reason-card">
-            <h5>Reason for Deactivation</h5>
-            <p className="mb-0">{labData?.adminReason || 'No specific reason provided.'}</p>
-          </div>
-
-          {adminEmail && (
-            <div className="admin-contact-card">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c757d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-              <span>
-                For any queries, contact the admin at: <strong>{adminEmail}</strong>
-              </span>
+          <div className="lab-sp-content-scroll">
+            <div className="lab-sp-reason-card">
+              <h5>Reason for Deactivation</h5>
+              <p className="mb-0">{labData?.adminReason || 'No specific reason provided.'}</p>
             </div>
-          )}
 
-          {hasAppealed ? (
-            <div className="appeal-status-card">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffc107" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-              <div>
-                <h5>Appeal Submitted</h5>
-                <p className="mb-0">Your appeal has been forwarded to the admin team. Please wait for review.</p>
+            {adminEmail && (
+              <div className="lab-sp-admin-contact">
+                <i className="bi bi-envelope-fill me-2 text-secondary"></i>
+                <span>
+                  Admin Contact: <strong>{adminEmail}</strong>
+                </span>
               </div>
-            </div>
-          ) : (
-            <>
-              <p className="appeal-prompt">
-                If you believe this was a mistake, you can submit an appeal below.
-              </p>
+            )}
 
-              <div className="appeal-form">
-                <label htmlFor="appealText" className="form-label fw-semibold">
+            {hasAppealed ? (
+              <div className="lab-sp-appeal-status">
+                <i className="bi bi-shield-fill-exclamation me-3 text-warning fs-4"></i>
+                <div>
+                  <h5>Appeal Under Review</h5>
+                  <p className="mb-0">Your request has been sent to the administrator. Please wait for them to re-activate your account.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="lab-sp-appeal-form">
+                <label htmlFor="appealText" className="lab-sp-form-label">
                   Submit an Appeal
                 </label>
                 <textarea
                   id="appealText"
-                  className="form-control"
-                  rows="4"
-                  placeholder="Explain why your account should be reactivated..."
+                  className="form-control lab-sp-textarea"
+                  rows="3"
+                  placeholder="Provide an explanation to request reactivation..."
                   value={appealText}
                   onChange={(e) => setAppealText(e.target.value)}
                   maxLength={1000}
@@ -156,7 +145,7 @@ function SuspendedPage() {
                 <div className="d-flex justify-content-between align-items-center mt-2">
                   <small className="text-muted">{appealText.length}/1000</small>
                   <button
-                    className="btn btn-danger px-4"
+                    className="btn btn-danger lab-sp-btn-submit"
                     onClick={handleSubmitAppeal}
                     disabled={submitting || !appealText.trim()}
                   >
@@ -166,19 +155,45 @@ function SuspendedPage() {
                         Submitting...
                       </>
                     ) : (
-                      'Submit Appeal'
+                      <>
+                        Submit Appeal
+                        <i className="bi bi-send ms-2"></i>
+                      </>
                     )}
                   </button>
                 </div>
               </div>
-            </>
-          )}
+            )}
+          </div>
 
-          <div className="suspended-actions">
-            <button className="btn btn-outline-secondary" onClick={handleLogout}>
+          <div className="lab-sp-footer">
+            <button className="btn btn-outline-secondary lab-sp-btn-logout w-100" onClick={handleLogout}>
               <i className="bi bi-box-arrow-right me-2"></i>
               Logout
             </button>
+          </div>
+        </div>
+
+        {/* Right Panel - Hero Illustration */}
+        <div className="lab-sp-hero-panel">
+          <div className="lab-sp-hero-decoration">
+            <div className="lab-sp-hero-circle lab-sp-hero-circle-1"></div>
+            <div className="lab-sp-hero-circle lab-sp-hero-circle-2"></div>
+          </div>
+          <div className="lab-sp-hero-content">
+            <h2 className="lab-sp-hero-title">Access Restricted</h2>
+            <p className="lab-sp-hero-subtitle">
+              NeuroNexus security protocols have temporarily locked this workspace.
+            </p>
+            <div className="lab-sp-hero-illustration">
+              <div className="lab-sp-illustration-recovery">
+                <div className="lab-sp-shield-alert">
+                  <div className="lab-sp-shield-alert-inner">
+                    <i className="bi bi-shield-fill-x"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

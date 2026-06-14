@@ -231,7 +231,7 @@ function LabDashboard() {
                     <div>
                       <p className="text-muted mb-1 small">Total Payments</p>
                       <h3 className="mb-0 fw-bold text-dark">{totalPayments}</h3>
-                      <small className="text-muted"><i className="bi bi-cash-stack"></i> Earnings: Rs{totalEarnings.toLocaleString()}</small>
+                      <small className="text-muted"><i className="bi bi-cash-stack"></i> Earnings: ${totalEarnings.toLocaleString()}</small>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3'}}>
                       <i className="bi bi-cash-stack" style={{color: '#059669'}}></i>

@@ -1817,7 +1817,7 @@ export const FirebaseProvider = ({ children }) => {
         const pay = booking.payment || {};
         const paymentId = pay.paymentId || `N/A`;
         const amount = pay.amount || 0;
-        const currency = pay.currency || 'PKR';
+        const currency = pay.currency || 'USD';
         const paymentMethod = pay.paymentMethod || 'N/A';
         const paymentStatus = pay.paymentStatus || 'N/A';
         const transactionDate = pay.transactionDate || 0;

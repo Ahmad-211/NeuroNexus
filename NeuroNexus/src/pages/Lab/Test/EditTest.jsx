@@ -263,7 +263,7 @@ function EditTest() {
                         {/* Price */}
                         <div className="col-md-6">
                           <label htmlFor="price" className="form-label">
-                            Price (₹) <span className="text-danger">*</span>
+                            Price ($) <span className="text-danger">*</span>
                           </label>
                           <input
                             type="number"

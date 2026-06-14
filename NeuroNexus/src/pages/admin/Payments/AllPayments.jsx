@@ -29,7 +29,7 @@ function AllPayments() {
   }, []);
 
   const formatCurrency = (amount, currency) => {
-    const symbol = currency === 'PKR' ? 'Rs' : '$';
+    const symbol = '$';
     return `${symbol}${Number(amount).toLocaleString()}`;
   };
 
@@ -135,10 +135,10 @@ function AllPayments() {
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Revenue</p>
-                      <h4 className="mb-0 fw-bold text-success">Rs{totalRevenue.toLocaleString()}</h4>
+                      <h4 className="mb-0 fw-bold text-success">${totalRevenue.toLocaleString()}</h4>
                     </div>
                     <div className="icon-bg bg-primary bg-opacity-10 rounded-circle p-3">
-                      <i className="bi bi-currency-rupee text-success" style={{ fontSize: '24px' }}></i>
+                      <i className="bi bi-currency-dollar text-success" style={{ fontSize: '24px' }}></i>
                     </div>
                   </div>
                 </div>

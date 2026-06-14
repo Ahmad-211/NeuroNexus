@@ -304,7 +304,7 @@ function AdminDashboard() {
                       <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : stats.paidPayments}</h3>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1FADF'}}>
-                      <i className="bi bi-currency-rupee" style={{color: '#10b981'}}></i>
+                      <i className="bi bi-currency-dollar" style={{color: '#10b981'}}></i>
                     </div>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ function AdminDashboard() {
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
                       <p className="text-muted mb-1 small">Total Revenue</p>
-                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : `Rs${stats.totalRevenue.toLocaleString()}`}</h3>
+                      <h3 className="mb-0 fw-bold text-dark">{loading ? '...' : `$${stats.totalRevenue.toLocaleString()}`}</h3>
                     </div>
                     <div className="icon-bg rounded-lg p-3" style={{backgroundColor: '#D1F7E3'}}>
                       <i className="bi bi-graph-up-arrow" style={{color: '#059669'}}></i>

@@ -1,128 +1,375 @@
-.suspended-page {
+/* ========================================
+   LAB PORTAL - SUSPENDED PAGE
+   ======================================== */
+
+.lab-sp-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: #FFFFFF;
+  padding: 2rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-sizing: border-box;
 }
 
-.suspended-container {
-  width: 100%;
-  max-width: 540px;
-}
-
-.suspended-card {
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+.lab-sp-loader-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 3rem;
   text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
-.suspended-icon {
-  margin-bottom: 16px;
+.lab-sp-wrapper {
+  display: flex;
+  width: 860px;
+  max-width: 100%;
+  min-height: 600px;
+  max-height: calc(100vh - 4rem);
+  background: #FFFFFF;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
 }
 
-.suspended-title {
+/* Left Panel - Info & Appeal Form */
+.lab-sp-info-panel {
+  flex: 1.2;
+  min-width: 0;
+  min-height: 0;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.lab-sp-info-header {
+  margin-bottom: 1rem;
+}
+
+.lab-sp-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a1a2e;
-  margin-bottom: 8px;
+  color: #0F172A;
+  margin: 0 0 0.5rem 0;
 }
 
-.suspended-subtitle {
-  color: #6c757d;
-  margin-bottom: 24px;
-  font-size: 14px;
+.lab-sp-subtitle {
+  font-size: 13.5px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
 }
 
-.admin-contact-card {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+/* Form & content area — grows naturally; panel scrolls when content overflows */
+.lab-sp-content-scroll {
+  flex: 0 0 auto;
+  margin-bottom: 1.25rem;
+}
+
+.lab-sp-reason-card {
+  background: #FEF2F2;
+  border: 1px solid #FEE2E2;
   border-radius: 12px;
-  padding: 14px 18px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.lab-sp-reason-card h5 {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #DC2626;
+  margin: 0 0 0.5rem 0;
+}
+
+.lab-sp-reason-card p {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.lab-sp-admin-contact {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 12.5px;
+  color: #475569;
   display: flex;
   align-items: center;
-  gap: 10px;
-  text-align: left;
-  margin-bottom: 24px;
-  font-size: 13px;
-  color: #495057;
 }
 
-.suspended-reason-card {
-  background: #fff3f3;
-  border: 1px solid #ffccd5;
+.lab-sp-appeal-status {
+  background: #FFFBEB;
+  border: 1px solid #FEF3C7;
   border-radius: 12px;
-  padding: 20px;
-  text-align: left;
-  margin-bottom: 24px;
-}
-
-.suspended-reason-card h5 {
-  color: #dc3545;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.suspended-reason-card p {
-  font-size: 14px;
-  color: #495057;
-  line-height: 1.6;
-}
-
-.appeal-status-card {
-  background: #fffef3;
-  border: 1px solid #ffe69c;
-  border-radius: 12px;
-  padding: 20px;
+  padding: 1rem;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  text-align: left;
-  margin-bottom: 24px;
 }
 
-.appeal-status-card h5 {
-  font-size: 14px;
+.lab-sp-appeal-status h5 {
+  font-size: 13.5px;
   font-weight: 600;
-  color: #856404;
-  margin-bottom: 4px;
+  color: #D97706;
+  margin: 0 0 0.25rem 0;
 }
 
-.appeal-status-card p {
+.lab-sp-appeal-status p {
+  font-size: 12.5px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.lab-sp-appeal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.lab-sp-form-label {
   font-size: 13px;
-  color: #6c757d;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.5rem;
 }
 
-.appeal-prompt {
-  color: #6c757d;
-  font-size: 14px;
-  margin-bottom: 16px;
+.lab-sp-textarea {
+  font-size: 13px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  resize: none;
 }
 
-.appeal-form {
-  text-align: left;
-  margin-bottom: 24px;
+.lab-sp-textarea:focus {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  outline: none;
 }
 
-.appeal-form textarea {
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
-  padding: 12px;
-  font-size: 14px;
-  resize: vertical;
-  transition: border-color 0.2s;
+.lab-sp-btn-submit {
+  background-color: #DC2626;
+  border-color: #DC2626;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.appeal-form textarea:focus {
-  border-color: #667eea;
-  box-shadow: none;
+.lab-sp-btn-submit:hover:not(:disabled) {
+  background-color: #B91C1C;
+  border-color: #B91C1C;
 }
 
-.suspended-actions {
-  padding-top: 8px;
-  border-top: 1px solid #e9ecef;
+.lab-sp-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-bottom: 40px;
+}
+
+.lab-sp-btn-logout {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0.6rem;
+  border-radius: 8px;
+}
+
+/* Right Panel - Hero panel */
+.lab-sp-hero-panel {
+  flex: 0.9;
+  background: linear-gradient(135deg, #EF4444 0%, #991B1B 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.lab-sp-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lab-sp-hero-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.lab-sp-hero-subtitle {
+  font-size: 13.5px;
+  opacity: 0.9;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.lab-sp-hero-illustration {
+  width: 100%;
+  max-width: 280px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.lab-sp-illustration-recovery {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Warning Shield Alert */
+.lab-sp-shield-alert {
+  position: absolute;
+  width: 85px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 3.5px solid #FFFFFF;
+  border-radius: 50% 50% 50% 50% / 12% 12% 88% 88%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(5px);
+}
+
+.lab-sp-shield-alert-inner {
+  width: 60px;
+  height: 76px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50% 50% 50% 50% / 12% 12% 88% 88%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lab-sp-shield-alert-inner i {
+  font-size: 36px;
+  color: #FFFFFF;
+}
+
+/* Background Circles Decoration */
+.lab-sp-hero-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+}
+
+.lab-sp-hero-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.lab-sp-hero-circle-1 {
+  width: 260px;
+  height: 260px;
+  top: -80px;
+  right: -80px;
+}
+
+.lab-sp-hero-circle-2 {
+  width: 180px;
+  height: 180px;
+  bottom: -40px;
+  left: -40px;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 890px) {
+  .lab-sp-wrapper {
+    width: 100%;
+    max-width: 480px;
+    min-height: auto;
+    max-height: none;
+    flex-direction: column;
+  }
+
+  .lab-sp-info-panel {
+    padding: 2rem;
+    overflow-y: visible;
+    min-height: auto;
+  }
+
+  .lab-sp-content-scroll {
+    margin-bottom: 1rem;
+  }
+
+  .lab-sp-footer {
+    padding-bottom: 24px;
+  }
+
+  .lab-sp-hero-panel {
+    order: -1;
+    min-height: 180px;
+    padding: 2rem 1rem;
+  }
+
+  .lab-sp-hero-subtitle {
+    margin-bottom: 0.75rem;
+  }
+
+  .lab-sp-illustration-recovery {
+    height: 100px;
+  }
+
+  .lab-sp-shield-alert {
+    width: 65px;
+    height: 76px;
+  }
+
+  .lab-sp-shield-alert-inner {
+    width: 46px;
+    height: 58px;
+  }
+
+  .lab-sp-shield-alert-inner i {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 576px) {
+  .lab-sp-container {
+    padding: 1rem;
+  }
+
+  .lab-sp-info-panel {
+    padding: 1.5rem;
+  }
+
+  .lab-sp-title {
+    font-size: 20px;
+  }
 }

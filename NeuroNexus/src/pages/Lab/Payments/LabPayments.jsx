@@ -29,7 +29,7 @@ function LabPayments() {
   }, [currentUser]);
 
   const formatCurrency = (amount, currency) => {
-    const symbol = currency === 'PKR' ? 'Rs' : '$';
+    const symbol = '$';
     return `${symbol}${Number(amount).toLocaleString()}`;
   };
 

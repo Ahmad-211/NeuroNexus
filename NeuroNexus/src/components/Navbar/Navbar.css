@@ -265,6 +265,13 @@
   background-color: #fef2f2;
 }
 
+/* Desktop: hide hamburger menu toggle */
+@media (min-width: 992px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 991px) {
   .navbar {

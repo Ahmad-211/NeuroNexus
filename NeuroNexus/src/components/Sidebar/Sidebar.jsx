@@ -26,7 +26,7 @@ function Sidebar({ isOpen, closeSidebar }) {
     };
 
     fetchUnreadCount();
-    
+
     // Refresh count every 30 seconds
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
@@ -43,7 +43,7 @@ function Sidebar({ isOpen, closeSidebar }) {
     };
 
     fetchPendingLabsCount();
-    
+
     // Refresh count every 30 seconds
     const interval = setInterval(fetchPendingLabsCount, 30000);
     return () => clearInterval(interval);
@@ -60,7 +60,7 @@ function Sidebar({ isOpen, closeSidebar }) {
     };
 
     fetchPendingDoctorsCount();
-    
+
     // Refresh count every 30 seconds
     const interval = setInterval(fetchPendingDoctorsCount, 30000);
     return () => clearInterval(interval);
@@ -71,7 +71,7 @@ function Sidebar({ isOpen, closeSidebar }) {
     const fetchUnassignedComplaintsCount = async () => {
       const result = await getAllComplaints();
       if (result.success) {
-        const unassigned = result.complaints.filter(complaint => 
+        const unassigned = result.complaints.filter(complaint =>
           !complaint.priority || complaint.priority === 'NA'
         ).length;
         setUnassignedComplaintsCount(unassigned);
@@ -79,7 +79,7 @@ function Sidebar({ isOpen, closeSidebar }) {
     };
 
     fetchUnassignedComplaintsCount();
-    
+
     // Refresh count every 30 seconds
     const interval = setInterval(fetchUnassignedComplaintsCount, 30000);
     return () => clearInterval(interval);
@@ -136,10 +136,10 @@ function Sidebar({ isOpen, closeSidebar }) {
       <nav className={`sidebar bg-dark text-white p-3 ${isOpen ? 'show' : ''}`}>
         <div className="sidebar-header mb-4">
           <div className="d-flex align-items-center gap-2">
-            <div className="logo-icon" style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '10px', 
+            <div className="logo-icon" style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
               background: '#1a1a1a',
               display: 'flex',
               alignItems: 'center',
@@ -152,8 +152,8 @@ function Sidebar({ isOpen, closeSidebar }) {
               <small className="text-white-50">Admin Portal</small>
             </div>
           </div>
-          <button 
-            className="btn-close btn-close-white d-lg-none ms-auto position-absolute top-0 end-0 me-3 mt-3" 
+          <button
+            className="btn-close btn-close-white d-lg-none ms-auto position-absolute top-0 end-0 me-3 mt-3"
             onClick={closeSidebar}
             type="button"
           ></button>
@@ -257,7 +257,7 @@ function Sidebar({ isOpen, closeSidebar }) {
               </a>
             </li>
 
-           
+
 
             {/* Notifications */}
             <li className="nav-item mb-2">
@@ -272,6 +272,11 @@ function Sidebar({ isOpen, closeSidebar }) {
                   <span className="badge badge-notifications ms-auto">{unreadCount}</span>
                 )}
               </a>
+            </li>
+
+            {/* Divider */}
+            <li className="nav-item my-3">
+              <hr className="text-muted" />
             </li>
 
             {/* Divider */}

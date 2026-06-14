@@ -72,9 +72,9 @@ function ApprovedDoctors() {
   // Filter doctors
   const filteredDoctors = doctors.filter(doctor => {
     const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          doctor.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialization = selectedSpecialization === 'all' || 
-                                  doctor.specialization === selectedSpecialization;
+      doctor.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSpecialization = selectedSpecialization === 'all' ||
+      doctor.specialization === selectedSpecialization;
     return matchesSearch && matchesSpecialization;
   });
 
@@ -103,10 +103,10 @@ function ApprovedDoctors() {
   return (
     <div className="d-flex vh-100">
       <Sidebar isOpen={sidebarOpen} closeSidebar={closeSidebar} />
-      
+
       <div className="flex-grow-1 d-flex flex-column overflow-hidden">
         <Navbar toggleSidebar={toggleSidebar} pageTitle="Approved Doctors" />
-        
+
         <div className="flex-grow-1 overflow-y-auto">
           <div className="w-100 p-4">
             {/* Page Header */}
@@ -116,14 +116,14 @@ function ApprovedDoctors() {
                 <p className="text-muted mb-0">Manage active doctors in the system</p>
               </div>
               <div className="col-md-6 text-md-end">
-                <button 
+                <button
                   className="btn btn-outline-primary me-2"
                   onClick={() => navigate('/doctors/pending')}
                 >
                   <i className="bi bi-clock-history me-2"></i>
                   Pending
                 </button>
-                <button 
+                <button
                   className="btn btn-outline-primary me-2"
                   onClick={() => navigate('/doctors/rejected')}
                 >
@@ -196,7 +196,7 @@ function ApprovedDoctors() {
             {filteredDoctors.length === 0 ? (
               <div className="card border-0 shadow-sm">
                 <div className="card-body text-center py-5">
-                  <i className="bi bi-inbox text-muted" style={{fontSize: '48px'}}></i>
+                  <i className="bi bi-inbox text-muted" style={{ fontSize: '48px' }}></i>
                   <h5 className="mt-3 text-muted">No doctors found</h5>
                   <p className="text-muted">Try adjusting your search or filters.</p>
                 </div>
@@ -224,11 +224,11 @@ function ApprovedDoctors() {
                             <td className="px-4 py-3">
                               <div className="d-flex align-items-center">
                                 {doctor.profileImageUrl ? (
-                                  <img 
-                                    src={doctor.profileImageUrl} 
+                                  <img
+                                    src={doctor.profileImageUrl}
                                     alt={doctor.name}
                                     className="rounded-circle me-3"
-                                    style={{width: '40px', height: '40px', objectFit: 'cover'}}
+                                    style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                                   />
                                 ) : (
                                   <div className="avatar-circle bg-primary bg-opacity-10 text-primary me-3">
@@ -253,7 +253,7 @@ function ApprovedDoctors() {
                               <small>{doctor.qualification}</small>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="text-success fw-semibold">₹{doctor.consultationFee}</span>
+                              <span className="text-success fw-semibold">${doctor.consultationFee}</span>
                             </td>
                             <td className="px-4 py-3">
                               <small>{doctor.phone}</small>
@@ -285,11 +285,11 @@ function ApprovedDoctors() {
                       <div className="card-body">
                         <div className="d-flex justify-content-between align-items-start mb-3">
                           {doctor.profileImageUrl ? (
-                            <img 
-                              src={doctor.profileImageUrl} 
+                            <img
+                              src={doctor.profileImageUrl}
                               alt={doctor.name}
                               className="rounded-circle"
-                              style={{width: '60px', height: '60px', objectFit: 'cover'}}
+                              style={{ width: '60px', height: '60px', objectFit: 'cover' }}
                             />
                           ) : (
                             <div className="avatar-circle-large bg-primary bg-opacity-10 text-primary">
@@ -303,7 +303,7 @@ function ApprovedDoctors() {
                         <p className="text-muted small mb-3">
                           <code>{doctor.licenseNumber}</code>
                         </p>
-                        
+
                         <div className="mb-3">
                           <div className="d-flex align-items-center mb-2">
                             <i className="bi bi-mortarboard text-primary me-2"></i>
@@ -311,7 +311,7 @@ function ApprovedDoctors() {
                           </div>
                           <div className="d-flex align-items-center mb-2">
                             <i className="bi bi-cash text-success me-2"></i>
-                            <small className="fw-semibold">Fee: ₹{doctor.consultationFee}</small>
+                            <small className="fw-semibold">Fee: ${doctor.consultationFee}</small>
                           </div>
                           <div className="d-flex align-items-center mb-2">
                             <i className="bi bi-telephone text-info me-2"></i>
@@ -340,7 +340,7 @@ function ApprovedDoctors() {
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="d-grid">
                           <button
                             className="btn btn-info btn-sm"
@@ -359,36 +359,36 @@ function ApprovedDoctors() {
 
             {/* License View Modal */}
             {showLicenseModal && selectedDoctor && (
-              <div className="modal show d-block" style={{backgroundColor: 'rgba(0,0,0,0.5)'}}>
+              <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                 <div className="modal-dialog modal-dialog-centered modal-lg">
                   <div className="modal-content">
                     <div className="modal-header">
                       <h5 className="modal-title">License - {selectedDoctor.name}</h5>
-                      <button 
-                        type="button" 
-                        className="btn-close" 
+                      <button
+                        type="button"
+                        className="btn-close"
                         onClick={() => setShowLicenseModal(false)}
                       ></button>
                     </div>
                     <div className="modal-body text-center">
                       {selectedDoctor.licenseImageUrl ? (
-                        <img 
-                          src={selectedDoctor.licenseImageUrl} 
-                          alt="License" 
+                        <img
+                          src={selectedDoctor.licenseImageUrl}
+                          alt="License"
                           className="img-fluid rounded"
-                          style={{maxHeight: '70vh'}}
+                          style={{ maxHeight: '70vh' }}
                         />
                       ) : (
                         <div className="py-5">
-                          <i className="bi bi-file-earmark-x text-muted" style={{fontSize: '48px'}}></i>
+                          <i className="bi bi-file-earmark-x text-muted" style={{ fontSize: '48px' }}></i>
                           <p className="mt-3 text-muted">No license image uploaded</p>
                         </div>
                       )}
                     </div>
                     <div className="modal-footer">
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary" 
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
                         onClick={() => setShowLicenseModal(false)}
                       >
                         Close

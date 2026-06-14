@@ -248,7 +248,7 @@ function PendingDoctors() {
                               <small>{doctor.qualification}</small>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="text-success fw-semibold">₹{doctor.consultationFee}</span>
+                              <span className="text-success fw-semibold">${doctor.consultationFee}</span>
                             </td>
                             <td className="px-4 py-3">
                               <small>{doctor.phone}</small>

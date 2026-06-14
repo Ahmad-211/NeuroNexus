@@ -22,7 +22,7 @@ function LabSidebar({ isOpen, closeSidebar }) {
     };
 
     fetchUnreadCount();
-    
+
     // Refresh count every 30 seconds
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
@@ -57,10 +57,10 @@ function LabSidebar({ isOpen, closeSidebar }) {
       <nav className={`lab-sidebar bg-dark text-white p-3 ${isOpen ? 'show' : ''}`}>
         <div className="sidebar-header mb-4">
           <div className="d-flex align-items-center gap-2">
-            <div className="logo-icon" style={{ 
-              width: '40px', 
-              height: '40px', 
-              borderRadius: '10px', 
+            <div className="logo-icon" style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
               background: 'linear-gradient(135deg, #1a1a1a 0%, #1a1a1a 100%)',
               display: 'flex',
               alignItems: 'center',
@@ -73,8 +73,8 @@ function LabSidebar({ isOpen, closeSidebar }) {
               <small className="text-white-50">Lab Portal</small>
             </div>
           </div>
-          <button 
-            className="btn-close btn-close-white d-lg-none ms-auto position-absolute top-0 end-0 me-3 mt-3" 
+          <button
+            className="btn-close btn-close-white d-lg-none ms-auto position-absolute top-0 end-0 me-3 mt-3"
             onClick={closeSidebar}
             type="button"
           ></button>
@@ -155,7 +155,7 @@ function LabSidebar({ isOpen, closeSidebar }) {
               </a>
             </li>
 
-        
+
             {/* Notifications */}
             <li className="nav-item mb-2">
               <a
@@ -171,6 +171,15 @@ function LabSidebar({ isOpen, closeSidebar }) {
               </a>
             </li>
 
+            {/* Divider */}
+            <li className="nav-item my-3">
+              <hr className="text-muted" />
+            </li>
+
+            {/* Divider */}
+            <li className="nav-item my-3">
+              <hr className="text-muted" />
+            </li>
             {/* Divider */}
             <li className="nav-item my-3">
               <hr className="text-muted" />

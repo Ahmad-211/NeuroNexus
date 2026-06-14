@@ -35,86 +35,124 @@ function ForgetPassword() {
     navigate('/admin/login');
   };
 
-  if (isSubmitted) {
-    return (
-      <div className="forget-password-page">
-        <div className="forget-password-container">
-          <div className="success-animation">
-            <div className="success-circle">
-              <i className="bi bi-check-lg"></i>
-            </div>
-          </div>
-          <h2 className="success-title">Check Your Email</h2>
-          <p className="success-message">
-            We've sent password reset instructions to <strong>{email}</strong>
-          </p>
-          <p className="success-note">
-            Didn't receive the email? Check your spam folder or try again.
-          </p>
-          <button className="btn-back-login" onClick={handleBackToLogin}>
-            <i className="bi bi-arrow-left me-2"></i>
-            Back to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="forget-password-page">
-      <div className="forget-password-container">
-        <div className="forget-password-icon">
-          <i className="bi bi-lock-fill"></i>
-        </div>
-        <h2 className="forget-password-title">Forgot Password?</h2>
-        <p className="forget-password-subtitle">
-          No worries! Enter your email address and we'll send you instructions to reset your password.
-        </p>
-
-        <form onSubmit={handleSubmit} className="forget-password-form">
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <div className="input-with-icon">
-              <i className="bi bi-envelope"></i>
-              <input
-                type="email"
-                id="email"
-                placeholder="admin@neuronexus.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-              />
+    <div className="admin-fp-container">
+      <div className="admin-fp-wrapper">
+        {/* Left Panel - Form / Success */}
+        <div className="admin-fp-form-panel">
+          {/* Logo */}
+          <div className="admin-fp-logo-section">
+            <div className="admin-fp-logo-icon">
+              <img src="/assets/images/logo_icon.png" alt="NeuroNexus Logo" />
             </div>
+            <h1 className="admin-fp-logo-text">NeuroNexus</h1>
           </div>
 
-          {error && (
-            <div className="alert alert-danger py-2 px-3 mb-3" style={{fontSize: '14px', borderRadius: '10px'}}>
-              <i className="bi bi-exclamation-circle me-2"></i>
-              {error}
+          {!isSubmitted ? (
+            <>
+              {/* Header */}
+              <div className="admin-fp-header">
+                <h2 className="admin-fp-title">Forgot Password?</h2>
+                <p className="admin-fp-subtitle">
+                  No worries! Enter your email address and we'll send you instructions to reset your password.
+                </p>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="admin-fp-form">
+                <div className="admin-fp-form-group">
+                  <label htmlFor="email" className="admin-fp-form-label">Email Address</label>
+                  <div className="admin-fp-input-with-icon">
+                    <i className="bi bi-envelope"></i>
+                    <input
+                      type="email"
+                      id="email"
+                      className="admin-fp-form-input"
+                      placeholder="admin@neuronexus.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="alert alert-danger py-2 px-3 mb-3" style={{ fontSize: '14px', borderRadius: '10px' }}>
+                    <i className="bi bi-exclamation-circle me-2"></i>
+                    {error}
+                  </div>
+                )}
+
+                <button type="submit" className="admin-fp-btn-reset-password" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Reset Link
+                      <i className="bi bi-send ms-2"></i>
+                    </>
+                  )}
+                </button>
+              </form>
+
+              <div className="admin-fp-back-to-login">
+                <button onClick={handleBackToLogin} className="admin-fp-link-button">
+                  <i className="bi bi-arrow-left me-2"></i>
+                  Back to Login
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="admin-fp-success-state">
+              <div className="admin-fp-success-animation">
+                <div className="admin-fp-success-circle">
+                  <i className="bi bi-check-lg"></i>
+                </div>
+              </div>
+              <h2 className="admin-fp-success-title">Check Your Email</h2>
+              <p className="admin-fp-success-message">
+                We've sent password reset instructions to <strong>{email}</strong>
+              </p>
+              <p className="admin-fp-success-note">
+                Didn't receive the email? Check your spam folder or try again.
+              </p>
+              <button className="admin-fp-btn-back-login" onClick={handleBackToLogin}>
+                <i className="bi bi-arrow-left me-2"></i>
+                Back to Login
+              </button>
             </div>
           )}
+        </div>
 
-          <button type="submit" className="btn-reset-password" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                Sending...
-              </>
-            ) : (
-              <>
-                Send Reset Link
-                <i className="bi bi-send ms-2"></i>
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="back-to-login">
-          <button onClick={handleBackToLogin} className="link-button">
-            <i className="bi bi-arrow-left me-2"></i>
-            Back to Login
-          </button>
+        {/* Right Panel - Hero Decoration & Illustration */}
+        <div className="admin-fp-hero-panel">
+          <div className="admin-fp-hero-decoration">
+            <div className="admin-fp-hero-circle admin-fp-hero-circle-1"></div>
+            <div className="admin-fp-hero-circle admin-fp-hero-circle-2"></div>
+          </div>
+          <div className="admin-fp-hero-content">
+            <h2 className="admin-fp-hero-title">Recover Your Account</h2>
+            <p className="admin-fp-hero-subtitle">
+              Quick and secure password recovery to get you back to managing your workspace in no time.
+            </p>
+            <div className="admin-fp-hero-illustration">
+              <div className="admin-fp-illustration-recovery">
+                <div className="admin-fp-shield">
+                  <div className="admin-fp-shield-inner">
+                    <i className="bi bi-shield-lock"></i>
+                  </div>
+                </div>
+                <div className="admin-fp-key">
+                  <div className="admin-fp-key-ring"></div>
+                  <div className="admin-fp-key-bits"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

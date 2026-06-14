@@ -63,7 +63,7 @@ function LandingPage() {
     <div className="landing-page">
       {/* Sticky Navigation */}
       <nav className="navbar-landing sticky-top">
-        <div className="container">
+        <div className="container-fluid px-5">
           <div className="nav-content">
             <div className="nav-logo">
               <img src="/assets/images/logo_icon.png" alt="NeuroNexus Logo" />

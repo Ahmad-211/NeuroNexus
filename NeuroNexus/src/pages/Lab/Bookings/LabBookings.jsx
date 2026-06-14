@@ -283,7 +283,7 @@ function LabBookings() {
                             <th className="px-4 py-3">Test Name</th>
                             <th className="px-4 py-3">Date</th>
                             <th className="px-4 py-3">Time</th>
-                            <th className="px-4 py-3">Price (₹)</th>
+                            <th className="px-4 py-3">Price ($)</th>
                             <th className="px-4 py-3">Status</th>
                             <th className="px-4 py-3">Payment</th>
                             <th className="px-4 py-3 text-center">Action</th>
@@ -321,7 +321,7 @@ function LabBookings() {
                                 </td>
                                 <td className="px-4 py-3">
                                   <span className="fw-semibold">
-                                    {typeof price === 'number' ? `₹${price}` : price}
+                                    {typeof price === 'number' ? `$${price}` : price}
                                   </span>
                                 </td>
                                 <td className="px-4 py-3">

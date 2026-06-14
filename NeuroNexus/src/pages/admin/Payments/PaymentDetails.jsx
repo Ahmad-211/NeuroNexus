@@ -310,22 +310,22 @@ function PaymentDetails() {
                 <div className="card border-0 shadow-sm mb-4">
                   <div className="card-body">
                     <h5 className="mb-3">
-                      <i className="bi bi-currency-rupee text-success me-2"></i>
+                      <i className="bi bi-currency-dollar text-success me-2"></i>
                       Amount Breakdown
                     </h5>
                     <div className="amount-breakdown">
                       <div className="amount-item">
                         <span>Service Amount</span>
-                        <span className="fw-semibold">₹{payment.amount.toLocaleString()}</span>
+                        <span className="fw-semibold">${payment.amount.toLocaleString()}</span>
                       </div>
                       <div className="amount-item">
                         <span>Platform Fee</span>
-                        <span className="fw-semibold">₹{payment.platformFee.toLocaleString()}</span>
+                        <span className="fw-semibold">${payment.platformFee.toLocaleString()}</span>
                       </div>
                       <hr className="my-2" />
                       <div className="amount-item total">
                         <span className="fw-bold">Total Amount</span>
-                        <span className="fw-bold text-success fs-5">₹{payment.totalAmount.toLocaleString()}</span>
+                        <span className="fw-bold text-success fs-5">${payment.totalAmount.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
